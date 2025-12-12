@@ -1,0 +1,435 @@
+<!-- backend/views/home-personalized.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Protection Plan - AtmosGuard</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Personalized home styles */
+        .personalized-hero {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .hero-content h1 {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        /* Today's Plan */
+        .todays-plan {
+            padding: 60px 0;
+            background: #f8fafc;
+        }
+
+        .plan-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            margin-bottom: 40px;
+        }
+
+        .plan-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .plan-header h2 {
+            font-size: 2rem;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .plan-header p {
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        /* Clothing Categories */
+        .clothing-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .category-card {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 30px;
+            border-left: 5px solid #4f46e5;
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .category-header i {
+            font-size: 2rem;
+            color: #4f46e5;
+        }
+
+        .category-header h3 {
+            font-size: 1.3rem;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .recommendation-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .recommendation-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .recommendation-list li:last-child {
+            border-bottom: none;
+        }
+
+        .recommendation-list i {
+            color: #10b981;
+            min-width: 20px;
+        }
+
+        /* Skin Type Info */
+        .skin-type-info {
+            background: #f0f9ff;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid #0ea5e9;
+        }
+
+        .skin-type-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .skin-type-header i {
+            font-size: 2rem;
+            color: #0ea5e9;
+        }
+
+        .skin-type-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .skin-detail {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .skin-detail i {
+            color: #4f46e5;
+        }
+
+        /* Protection Tips */
+        .protection-tips {
+            background: #fef2f2;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid #ef4444;
+        }
+
+        .tips-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .tips-header i {
+            font-size: 2rem;
+            color: #ef4444;
+        }
+
+        .tips-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .tips-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #fecaca;
+            color: #7f1d1d;
+        }
+
+        .tips-list li:last-child {
+            border-bottom: none;
+        }
+
+        /* Quick Stats */
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .stat-box {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="container">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <span>AtmosGuard</span>
+        </div>
+        <div class="nav-links">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/profile">Profile</a>
+            <a href="#" id="logoutBtn" class="btn-outline">Logout</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Personalized Hero -->
+<section class="personalized-hero">
+    <div class="container">
+        <div class="hero-content">
+            <h1>Welcome back, <%= user.name %>! ☀️</h1>
+            <p>Here's your personalized sun protection plan for today. We've customized these recommendations based on your skin type and current conditions.</p>
+            <div class="quick-stats">
+                <div class="stat-box">
+                    <div class="stat-value"><%= uvData.index %></div>
+                    <div class="stat-label">UV Index Today</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value"><%= user.skinType %></div>
+                    <div class="stat-label">Your Skin Type</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value"><%= recommendations.head.length %></div>
+                    <div class="stat-label">Recommended Items</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">24/7</div>
+                    <div class="stat-label">Protection</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Today's Plan -->
+<section class="todays-plan">
+    <div class="container">
+        <div class="plan-card">
+            <div class="plan-header">
+                <h2><i class="fas fa-calendar-check"></i> Today's Protection Plan</h2>
+                <p>Customized recommendations for your skin type: <strong>Type <%= user.skinType %></strong></p>
+            </div>
+
+            <!-- Clothing Categories -->
+            <div class="clothing-categories">
+                <div class="category-card">
+                    <div class="category-header">
+                        <i class="fas fa-hat-cowboy"></i>
+                        <h3>Head Protection</h3>
+                    </div>
+                    <ul class="recommendation-list">
+                        <% recommendations.head.forEach(item => { %>
+                            <li><i class="fas fa-check-circle"></i> <%= item %></li>
+                        <% }) %>
+                    </ul>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-header">
+                        <i class="fas fa-user"></i>
+                        <h3>Upper Body</h3>
+                    </div>
+                    <ul class="recommendation-list">
+                        <% recommendations.upperBody.forEach(item => { %>
+                            <li><i class="fas fa-check-circle"></i> <%= item %></li>
+                        <% }) %>
+                    </ul>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-header">
+                        <i class="fas fa-vest"></i>
+                        <h3>Lower Body</h3>
+                    </div>
+                    <ul class="recommendation-list">
+                        <% recommendations.lowerBody.forEach(item => { %>
+                            <li><i class="fas fa-check-circle"></i> <%= item %></li>
+                        <% }) %>
+                    </ul>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-header">
+                        <i class="fas fa-sun"></i>
+                        <h3>Sunscreen Plan</h3>
+                    </div>
+                    <ul class="recommendation-list">
+                        <% recommendations.sunscreen.forEach(item => { %>
+                            <li><i class="fas fa-check-circle"></i> <%= item %></li>
+                        <% }) %>
+                    </ul>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-header">
+                        <i class="fas fa-glasses"></i>
+                        <h3>Accessories</h3>
+                    </div>
+                    <ul class="recommendation-list">
+                        <% recommendations.accessories.forEach(item => { %>
+                            <li><i class="fas fa-check-circle"></i> <%= item %></li>
+                        <% }) %>
+                    </ul>
+                </div>
+
+                <div class="category-card">
+                    <div class="category-header">
+                        <i class="fas fa-clock"></i>
+                        <h3>Timing Advice</h3>
+                    </div>
+                    <ul class="recommendation-list">
+                        <% recommendations.timing.forEach(item => { %>
+                            <li><i class="fas fa-check-circle"></i> <%= item %></li>
+                        <% }) %>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Your Skin Profile -->
+            <div class="skin-type-info">
+                <div class="skin-type-header">
+                    <i class="fas fa-user-md"></i>
+                    <h3>Your Skin Profile</h3>
+                </div>
+                <div class="skin-type-details">
+                    <div class="skin-detail">
+                        <i class="fas fa-dna"></i>
+                        <div>
+                            <strong>Skin Type:</strong> <%= user.skinType %>
+                        </div>
+                    </div>
+                    <% if(user.age) { %>
+                        <div class="skin-detail">
+                            <i class="fas fa-birthday-cake"></i>
+                            <div>
+                                <strong>Age:</strong> <%= user.age %> years
+                            </div>
+                        </div>
+                    <% } %>
+                    <div class="skin-detail">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Cancer History:</strong> <%= user.hasSkinCancerHistory ? 'Yes (Extra Protection)' : 'No' %>
+                        </div>
+                    </div>
+                    <div class="skin-detail">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <strong>Location:</strong> <%= user.preferredLocation ? user.preferredLocation.name : 'Not set' %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Special Warnings -->
+            <% if(user.hasSkinCancerHistory || recommendations.warnings.length > 0) { %>
+                <div class="protection-tips">
+                    <div class="tips-header">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>⚠️ Special Precautions</h3>
+                    </div>
+                    <ul class="tips-list">
+                        <% if(user.hasSkinCancerHistory) { %>
+                            <li><strong>Skin Cancer History:</strong> Maximum protection required at all times</li>
+                            <li>Wear UPF 50+ clothing whenever outdoors</li>
+                            <li>Perform monthly skin self-exams</li>
+                        <% } %>
+                        <% recommendations.warnings.forEach(warning => { %>
+                            <li><%= warning %></li>
+                        <% }) %>
+                    </ul>
+                </div>
+            <% } %>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="/dashboard" class="btn-primary">
+                    <i class="fas fa-chart-line"></i> Go to Dashboard
+                </a>
+                <a href="/api/ai/advice" class="btn-primary">
+                    <i class="fas fa-robot"></i> Get AI Advice
+                </a>
+                <button onclick="printPlan()" class="btn-outline">
+                    <i class="fas fa-print"></i> Print Plan
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    function printPlan() {
+        window.print();
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - AtmosGuard</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/onboarding.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="onboarding-container">
+    <!-- Progress Bar -->
+    <div class="progress-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 20%"></div>
+        </div>
+        <div class="progress-steps">
+            <div class="step active" data-step="1">
+                <div class="step-circle">1</div>
+                <span class="step-label">Skin Type</span>
+            </div>
+            <div class="step" data-step="2">
+                <div class="step-circle">2</div>
+                <span class="step-label">Skin Condition</span>
+            </div>
+            <div class="step" data-step="3">
+                <div class="step-circle">3</div>
+                <span class="step-label">Age</span>
+            </div>
+            <div class="step" data-step="4">
+                <div class="step-circle">4</div>
+                <span class="step-label">Location</span>
+            </div>
+            <div class="step" data-step="5">
+                <div class="step-circle">5</div>
+                <span class="step-label">Complete</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Logo -->
+    <div class="onboarding-header">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <h1>AtmosGuard</h1>
+        </div>
+        <div class="welcome-message">
+            <h2>Welcome, <%= user.name %>! 👋</h2>
+            <p>Let's personalize your sun protection experience. This will only take a minute.</p>
+        </div>
+    </div>
+
+    <!-- Onboarding Form -->
+    <form id="onboardingForm" class="onboarding-form">
+        <!-- Step 1: Skin Type -->
+        <div class="form-step active" id="step1">
+            <div class="step-content">
+                <h3><i class="fas fa-user-md"></i> What's your skin type?</h3>
+                <p class="step-description">Select your Fitzpatrick skin type. This helps us provide personalized protection advice based on your skin's sensitivity to UV rays.</p>
+
+                <div class="skin-type-grid">
+                    <label class="skin-type-option">
+                        <input type="radio" name="skinType" value="I" required>
+                        <div class="option-content">
+                            <div class="option-header">
+                                <div class="type-info">
+                                    <strong>Type I</strong>
+                                    <span class="type-color" style="background: #ffe4cc;"></span>
+                                </div>
+                                <div class="type-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                            <div class="option-body">
+                                <p class="type-description">Very fair skin, always burns, never tans</p>
+                                <div class="type-stats">
+                                    <span class="stat"><i class="fas fa-fire"></i> High burn risk</span>
+                                    <span class="stat"><i class="fas fa-sun"></i> Minimal tanning</span>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="skin-type-option">
+                        <input type="radio" name="skinType" value="II">
+                        <div class="option-content">
+                            <div class="option-header">
+                                <div class="type-info">
+                                    <strong>Type II</strong>
+                                    <span class="type-color" style="background: #f0c2a2;"></span>
+                                </div>
+                                <div class="type-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                            <div class="option-body">
+                                <p class="type-description">Fair skin, usually burns, tans minimally</p>
+                                <div class="type-stats">
+                                    <span class="stat"><i class="fas fa-fire"></i> High burn risk</span>
+                                    <span class="stat"><i class="fas fa-sun"></i> Light tanning</span>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="skin-type-option">
+                        <input type="radio" name="skinType" value="III">
+                        <div class="option-content">
+                            <div class="option-header">
+                                <div class="type-info">
+                                    <strong>Type III</strong>
+                                    <span class="type-color" style="background: #dfa678;"></span>
+                                </div>
+                                <div class="type-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                            <div class="option-body">
+                                <p class="type-description">Medium skin, sometimes burns, gradually tans</p>
+                                <div class="type-stats">
+                                    <span class="stat"><i class="fas fa-fire"></i> Moderate burn risk</span>
+                                    <span class="stat"><i class="fas fa-sun"></i> Good tanning</span>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="skin-type-option">
+                        <input type="radio" name="skinType" value="IV">
+                        <div class="option-content">
+                            <div class="option-header">
+                                <div class="type-info">
+                                    <strong>Type IV</strong>
+                                    <span class="type-color" style="background: #c68c53;"></span>
+                                </div>
+                                <div class="type-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                            <div class="option-body">
+                                <p class="type-description">Olive skin, rarely burns, tans easily</p>
+                                <div class="type-stats">
+                                    <span class="stat"><i class="fas fa-fire"></i> Low burn risk</span>
+                                    <span class="stat"><i class="fas fa-sun"></i> Easy tanning</span>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="skin-type-option">
+                        <input type="radio" name="skinType" value="V">
+                        <div class="option-content">
+                            <div class="option-header">
+                                <div class="type-info">
+                                    <strong>Type V</strong>
+                                    <span class="type-color" style="background: #8d5524;"></span>
+                                </div>
+                                <div class="type-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                            <div class="option-body">
+                                <p class="type-description">Brown skin, very rarely burns, tans very easily</p>
+                                <div class="type-stats">
+                                    <span class="stat"><i class="fas fa-fire"></i> Very low burn risk</span>
+                                    <span class="stat"><i class="fas fa-sun"></i> Very easy tanning</span>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="skin-type-option">
+                        <input type="radio" name="skinType" value="VI">
+                        <div class="option-content">
+                            <div class="option-header">
+                                <div class="type-info">
+                                    <strong>Type VI</strong>
+                                    <span class="type-color" style="background: #3d2314;"></span>
+                                </div>
+                                <div class="type-icon">
+                                    <i class="fas fa-check-circle"></i>
+                                </div>
+                            </div>
+                            <div class="option-body">
+                                <p class="type-description">Dark brown/black skin, never burns, deeply pigmented</p>
+                                <div class="type-stats">
+                                    <span class="stat"><i class="fas fa-fire"></i> No burn risk</span>
+                                    <span class="stat"><i class="fas fa-sun"></i> Natural protection</span>
+                                </div>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="skin-type-info">
+                    <h4><i class="fas fa-lightbulb"></i> Why skin type matters</h4>
+                    <p>Your skin type determines how quickly you burn and how much natural protection you have against UV rays. This helps us calculate your exact sun protection needs.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Skin Condition -->
+        <div class="form-step" id="step2">
+            <div class="step-content">
+                <h3><i class="fas fa-stethoscope"></i> Do you have any skin conditions?</h3>
+                <p class="step-description">This helps us tailor advice for your specific needs and provide appropriate recommendations.</p>
+
+                <div class="condition-grid">
+                    <label class="condition-option">
+                        <input type="radio" name="skinCondition" value="normal">
+                        <div class="option-content">
+                            <div class="condition-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="condition-info">
+                                <h4>Normal Skin</h4>
+                                <p>No specific skin conditions</p>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="condition-option">
+                        <input type="radio" name="skinCondition" value="eczema">
+                        <div class="option-content">
+                            <div class="condition-icon">
+                                <i class="fas fa-allergies"></i>
+                            </div>
+                            <div class="condition-info">
+                                <h4>Eczema</h4>
+                                <p>Inflammatory skin condition</p>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="condition-option">
+                        <input type="radio" name="skinCondition" value="psoriasis">
+                        <div class="option-content">
+                            <div class="condition-icon">
+                                <i class="fas fa-plus-square"></i>
+                            </div>
+                            <div class="condition-info">
+                                <h4>Psoriasis</h4>
+                                <p>Autoimmune skin condition</p>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="condition-option">
+                        <input type="radio" name="skinCondition" value="vitiligo">
+                        <div class="option-content">
+                            <div class="condition-icon">
+                                <i class="fas fa-circle"></i>
+                            </div>
+                            <div class="condition-info">
+                                <h4>Vitiligo</h4>
+                                <p>Loss of skin pigment</p>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="condition-option">
+                        <input type="radio" name="skinCondition" value="lupus">
+                        <div class="option-content">
+                            <div class="condition-icon">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <div class="condition-info">
+                                <h4>Lupus</h4>
+                                <p>Sun-sensitive autoimmune disease</p>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="condition-option">
+                        <input type="radio" name="skinCondition" value="skin_cancer">
+                        <div class="option-content">
+                            <div class="condition-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="condition-info">
+                                <h4>Skin Cancer History</h4>
+                                <p>Previous or current skin cancer</p>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Cancer History Question -->
+                <div class="cancer-history" id="cancerHistorySection" style="display: none;">
+                    <div class="history-question">
+                        <h4><i class="fas fa-question-circle"></i> Have you had skin cancer before?</h4>
+                        <p>This helps us provide extra precautions for your protection.</p>
+                    </div>
+                    <div class="yes-no-buttons">
+                        <label class="yes-no-option">
+                            <input type="radio" name="hasSkinCancerHistory" value="true">
+                            <span class="option-label">
+                                <i class="fas fa-check-circle"></i>
+                                Yes
+                            </span>
+                        </label>
+                        <label class="yes-no-option">
+                            <input type="radio" name="hasSkinCancerHistory" value="false">
+                            <span class="option-label">
+                                <i class="fas fa-times-circle"></i>
+                                No
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="condition-info">
+                    <h4><i class="fas fa-info-circle"></i> How this affects your protection</h4>
+                    <p>Certain skin conditions require specific types of sun protection. For example, eczema may require gentle, mineral-based sunscreens, while lupus requires maximum protection from all UV exposure.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Age -->
+        <div class="form-step" id="step3">
+            <div class="step-content">
+                <h3><i class="fas fa-birthday-cake"></i> What's your age?</h3>
+                <p class="step-description">Age affects how your skin reacts to UV exposure and helps us provide age-appropriate protection advice.</p>
+
+                <div class="age-input-container">
+                    <div class="age-input-wrapper">
+                        <div class="age-input">
+                            <input type="number"
+                                   id="ageInput"
+                                   name="age"
+                                   min="1"
+                                   max="120"
+                                   placeholder="Enter your age"
+                                   required>
+                            <span class="age-unit">years old</span>
+                        </div>
+
+                        <div class="age-slider">
+                            <input type="range" id="ageSlider" min="1" max="120" value="30">
+                            <div class="slider-labels">
+                                <span>1</span>
+                                <span>30</span>
+                                <span>60</span>
+                                <span>90</span>
+                                <span>120</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="age-categories">
+                        <div class="age-category" data-age-range="child">
+                            <div class="category-icon">
+                                <i class="fas fa-child"></i>
+                            </div>
+                            <div class="category-info">
+                                <h5>Child (1-12)</h5>
+                                <p>Extra sensitive skin</p>
+                            </div>
+                        </div>
+                        <div class="age-category" data-age-range="teen">
+                            <div class="category-icon">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="category-info">
+                                <h5>Teen (13-19)</h5>
+                                <p>Developing skin</p>
+                            </div>
+                        </div>
+                        <div class="age-category" data-age-range="young-adult">
+                            <div class="category-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="category-info">
+                                <h5>Young Adult (20-39)</h5>
+                                <p>Prime protection years</p>
+                            </div>
+                        </div>
+                        <div class="age-category" data-age-range="middle-aged">
+                            <div class="category-icon">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <div class="category-info">
+                                <h5>Middle-aged (40-59)</h5>
+                                <p>Preventive care</p>
+                            </div>
+                        </div>
+                        <div class="age-category" data-age-range="senior">
+                            <div class="category-icon">
+                                <i class="fas fa-user-friends"></i>
+                            </div>
+                            <div class="category-info">
+                                <h5>Senior (60+)</h5>
+                                <p>Extra protection needed</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="age-tips" id="ageTips">
+                        <div class="tips-header">
+                            <i class="fas fa-lightbulb"></i>
+                            <h4>Why age matters for sun protection</h4>
+                        </div>
+                        <p>Younger skin is more sensitive to UV damage, while older skin has less natural protection and needs extra care. Your age helps us provide appropriate sunscreen recommendations and protection strategies.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Location -->
+        <div class="form-step" id="step4">
+            <div class="step-content">
+                <h3><i class="fas fa-map-marker-alt"></i> Where are you located?</h3>
+                <p class="step-description">We'll use this to provide accurate UV data, weather information, and air quality alerts for your area.</p>
+
+                <div class="location-input-container">
+                    <div class="location-search">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text"
+                                   id="locationSearch"
+                                   placeholder="Enter your city, state, or zip code"
+                                   required>
+                            <div class="search-suggestions" id="locationSuggestions"></div>
+                        </div>
+
+                        <div class="current-location-option">
+                            <p>Or use your current location:</p>
+                            <button type="button" id="useCurrentLocation" class="btn-outline">
+                                <i class="fas fa-location-arrow"></i> Detect My Location
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="selected-location" id="selectedLocation" style="display: none;">
+                        <div class="location-card">
+                            <div class="card-header">
+                                <i class="fas fa-check-circle"></i>
+                                <h5>Selected Location</h5>
+                            </div>
+                            <div class="card-body">
+                                <h4 id="locationName">Loading...</h4>
+                                <div class="location-details">
+                                    <div class="detail">
+                                        <i class="fas fa-globe"></i>
+                                        <span>Latitude: <strong id="locationLat">--</strong></span>
+                                    </div>
+                                    <div class="detail">
+                                        <i class="fas fa-globe"></i>
+                                        <span>Longitude: <strong id="locationLon">--</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="location-info">
+                        <div class="info-box">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <h5>How we use your location</h5>
+                                <p>We only use your location to fetch real-time UV index, weather conditions, and air quality data. Your location is securely stored and never shared with third parties.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5: Complete -->
+        <div class="form-step" id="step5">
+            <div class="step-content">
+                <div class="completion-content">
+                    <div class="success-animation">
+                        <div class="success-circle">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+
+                    <div class="completion-header">
+                        <h2><i class="fas fa-trophy"></i> You're All Set! 🎉</h2>
+                        <p>Your profile has been personalized. Here's what we'll do for you:</p>
+                    </div>
+
+                    <div class="benefits-grid">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <div class="benefit-info">
+                                <h4>Real-time UV Monitoring</h4>
+                                <p>Get accurate UV index for your location every day</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                            <div class="benefit-info">
+                                <h4>Personalized Advice</h4>
+                                <p>AI-powered recommendations based on your skin profile</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-wind"></i>
+                            </div>
+                            <div class="benefit-info">
+                                <h4>Air Quality Alerts</h4>
+                                <p>Monitor pollution levels for skin health</p>
+                            </div>
+                        </div>
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-bell"></i>
+                            </div>
+                            <div class="benefit-info">
+                                <h4>Daily Reminders</h4>
+                                <p>Get notified when protection is needed</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-summary">
+                        <h3><i class="fas fa-clipboard-check"></i> Your Profile Summary</h3>
+                        <div class="summary-grid">
+                            <div class="summary-item">
+                                <span class="label">Skin Type</span>
+                                <strong id="summarySkinType">Not selected</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Skin Condition</span>
+                                <strong id="summarySkinCondition">Not selected</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Age</span>
+                                <strong id="summaryAge">Not selected</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Cancer History</span>
+                                <strong id="summaryCancerHistory">No</strong>
+                            </div>
+                            <div class="summary-item">
+                                <span class="label">Location</span>
+                                <strong id="summaryLocation">Not selected</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="completion-actions">
+                        <p class="disclaimer">
+                            <i class="fas fa-shield-alt"></i>
+                            <strong>Your data is secure:</strong> We use bank-level encryption to protect your personal information.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="form-navigation">
+            <div class="nav-buttons">
+                <button type="button" id="prevBtn" class="btn-outline" style="display: none;">
+                    <i class="fas fa-arrow-left"></i> Back
+                </button>
+                <div class="nav-progress">
+                    <span id="currentStep">Step 1</span>
+                    <span class="separator">of</span>
+                    <span id="totalSteps">5</span>
+                </div>
+                <button type="button" id="nextBtn" class="btn-primary">
+                    Continue <i class="fas fa-arrow-right"></i>
+                </button>
+                <button type="submit" id="submitBtn" class="btn-primary" style="display: none;">
+                    <i class="fas fa-check"></i> Complete Setup
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Loading Modal -->
+<div id="loadingModal" class="modal">
+    <div class="modal-content">
+        <div class="loading-animation">
+            <div class="loader"></div>
+            <p id="loadingText">Saving your preferences...</p>
+        </div>
+    </div>
+</div>
+
+<script src="/js/onboarding.js"></script>
+</body>
+</html>

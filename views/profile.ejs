@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> - AtmosGuard</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/profile.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="container">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <span>AtmosGuard</span>
+        </div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/dashboard" class="btn-outline">Dashboard</a>
+            <div class="user-dropdown">
+                <button class="user-menu-btn">
+                    <i class="fas fa-user-circle"></i>
+                    <span><%= user.name %></span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="profile-container">
+    <div class="container">
+        <!-- Profile Header -->
+        <div class="profile-header">
+            <div class="header-content">
+                <h1><i class="fas fa-user-circle"></i> Your Profile</h1>
+                <p class="header-subtitle">Manage your personal information and skin protection settings</p>
+            </div>
+            <div class="header-actions">
+                <a href="/dashboard" class="btn-outline">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div id="messagesContainer" class="messages-container"></div>
+
+        <!-- Profile Content -->
+        <div class="profile-content">
+            <!-- Personal Information Card -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-id-card"></i> Personal Information</h3>
+                    <button class="edit-btn" data-section="personal">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="label">Full Name</span>
+                            <span class="value" id="infoName"><%= user.name %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Email Address</span>
+                            <span class="value" id="infoEmail"><%= user.email %></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Age</span>
+                            <span class="value" id="infoAge">
+                                    <%= user.age ? user.age + ' years old' : 'Not set' %>
+                                </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Account Created</span>
+                            <span class="value" id="infoCreated">
+                                    <%= new Date(user.createdAt).toLocaleDateString('en-US', {
+                                        weekday: 'long',
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                    }) %>
+                                </span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Personal Information Form -->
+                <div class="edit-form hidden" id="editPersonalForm">
+                    <div class="form-header">
+                        <h4>Edit Personal Information</h4>
+                        <p>Update your basic information</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="editName">Full Name *</label>
+                        <input type="text" id="editName" value="<%= user.name %>" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editAge">Age *</label>
+                        <input type="number" id="editAge"
+                               value="<%= user.age || '' %>"
+                               min="1" max="120"
+                               placeholder="Enter your age"
+                               required>
+                        <small class="form-hint">Age helps us provide age-appropriate skin protection advice</small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-primary btn-save" onclick="savePersonalInfo()">
+                            <i class="fas fa-save"></i> Save Changes
+                        </button>
+                        <button type="button" class="btn-outline btn-cancel" onclick="cancelEdit('personal')">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skin Profile Card -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-heartbeat"></i> Skin Profile</h3>
+                    <button class="edit-btn" data-section="skin">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="skin-profile-grid">
+                        <div class="skin-profile-item highlight">
+                            <div class="skin-icon">
+                                <i class="fas fa-user-md"></i>
+                            </div>
+                            <div class="skin-info">
+                                <span class="label">Skin Type</span>
+                                <span class="value" id="skinTypeDisplay">
+                                    <% if(user.skinType === 'I') { %>Type I - Very fair skin, always burns<% } %>
+                                    <% if(user.skinType === 'II') { %>Type II - Fair skin, usually burns<% } %>
+                                    <% if(user.skinType === 'III') { %>Type III - Medium skin, sometimes burns<% } %>
+                                    <% if(user.skinType === 'IV') { %>Type IV - Olive skin, rarely burns<% } %>
+                                    <% if(user.skinType === 'V') { %>Type V - Brown skin, very rarely burns<% } %>
+                                    <% if(user.skinType === 'VI') { %>Type VI - Dark skin, never burns<% } %>
+                                    <% if(!user.skinType) { %>Not set<% } %>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="skin-profile-item">
+                            <div class="skin-icon">
+                                <i class="fas fa-stethoscope"></i>
+                            </div>
+                            <div class="skin-info">
+                                <span class="label">Skin Condition</span>
+                                <span class="value" id="skinConditionDisplay">
+                                        <%= user.skinCondition ? user.skinCondition.charAt(0).toUpperCase() + user.skinCondition.slice(1) : 'Not set' %>
+                                    </span>
+                            </div>
+                        </div>
+                        <div class="skin-profile-item">
+                            <div class="skin-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="skin-info">
+                                <span class="label">Cancer History</span>
+                                <span class="value" id="cancerHistoryDisplay">
+                                        <%= user.hasSkinCancerHistory ? 'Yes - Requires extra protection' : 'No' %>
+                                    </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Skin Profile Form -->
+                <div class="edit-form hidden" id="editSkinForm">
+                    <div class="form-header">
+                        <h4>Edit Skin Profile</h4>
+                        <p>This information helps us provide personalized sun protection advice</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="editSkinType">Skin Type (Fitzpatrick Scale) *</label>
+                        <select id="editSkinType" required>
+                            <option value="">Select your skin type</option>
+                            <option value="I" <%= user.skinType === 'I' ? 'selected' : '' %>>Type I - Very fair skin, always burns, never tans</option>
+                            <option value="II" <%= user.skinType === 'II' ? 'selected' : '' %>>Type II - Fair skin, usually burns, tans minimally</option>
+                            <option value="III" <%= user.skinType === 'III' ? 'selected' : '' %>>Type III - Medium skin, sometimes burns, gradually tans</option>
+                            <option value="IV" <%= user.skinType === 'IV' ? 'selected' : '' %>>Type IV - Olive skin, rarely burns, tans easily</option>
+                            <option value="V" <%= user.skinType === 'V' ? 'selected' : '' %>>Type V - Brown skin, very rarely burns, tans very easily</option>
+                            <option value="VI" <%= user.skinType === 'VI' ? 'selected' : '' %>>Type VI - Dark brown/black skin, never burns, deeply pigmented</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editSkinCondition">Skin Condition *</label>
+                        <select id="editSkinCondition" required>
+                            <option value="">Select condition</option>
+                            <option value="normal" <%= user.skinCondition === 'normal' ? 'selected' : '' %>>Normal Skin</option>
+                            <option value="eczema" <%= user.skinCondition === 'eczema' ? 'selected' : '' %>>Eczema</option>
+                            <option value="psoriasis" <%= user.skinCondition === 'psoriasis' ? 'selected' : '' %>>Psoriasis</option>
+                            <option value="vitiligo" <%= user.skinCondition === 'vitiligo' ? 'selected' : '' %>>Vitiligo</option>
+                            <option value="skin_cancer" <%= user.skinCondition === 'skin_cancer' ? 'selected' : '' %>>Skin Cancer History</option>
+                            <option value="lupus" <%= user.skinCondition === 'lupus' ? 'selected' : '' %>>Lupus</option>
+                            <option value="other" <%= user.skinCondition === 'other' ? 'selected' : '' %>>Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCancerHistory">Skin Cancer History</label>
+                        <select id="editCancerHistory">
+                            <option value="false" <%= !user.hasSkinCancerHistory ? 'selected' : '' %>>No history of skin cancer</option>
+                            <option value="true" <%= user.hasSkinCancerHistory ? 'selected' : '' %>>Yes, I have a history of skin cancer</option>
+                        </select>
+                        <small class="form-hint">This helps us provide extra precautions if needed</small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-primary btn-save" onclick="saveSkinProfile()">
+                            <i class="fas fa-save"></i> Save Skin Profile
+                        </button>
+                        <button type="button" class="btn-outline btn-cancel" onclick="cancelEdit('skin')">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location Settings Card -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-map-marker-alt"></i> Location Settings</h3>
+                    <button class="edit-btn" data-section="location">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+                <div class="card-body">
+                    <% if(user.preferredLocation && user.preferredLocation.name) { %>
+                        <div class="location-display">
+                            <div class="location-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="location-info">
+                                <h4><%= user.preferredLocation.name %></h4>
+                                <p class="coordinates">
+                                    <i class="fas fa-globe"></i>
+                                    <%= user.preferredLocation.lat.toFixed(4) %>°N,
+                                    <%= user.preferredLocation.lon.toFixed(4) %>°E
+                                </p>
+                                <p class="location-status">
+                                    <i class="fas fa-sync-alt"></i> Real-time weather data enabled
+                                </p>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <h4>No Location Set</h4>
+                            <p>Set your location to receive real-time UV and weather data</p>
+                            <button class="btn-primary" onclick="showEditForm('location')">
+                                <i class="fas fa-plus"></i> Add Location
+                            </button>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Edit Location Form -->
+                <div class="edit-form hidden" id="editLocationForm">
+                    <div class="form-header">
+                        <h4>Update Location</h4>
+                        <p>Your location helps us provide accurate UV and weather data</p>
+                    </div>
+                    <div class="form-group">
+                        <label for="locationSearch">Search Location</label>
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text"
+                                   id="locationSearch"
+                                   placeholder="Enter city, state, or zip code"
+                                   value="<%= user.preferredLocation ? user.preferredLocation.name : '' %>">
+                            <div class="search-suggestions" id="locationSuggestions"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Or use current location:</label>
+                        <button type="button" class="btn-outline btn-full" id="useCurrentLocation">
+                            <i class="fas fa-location-arrow"></i> Use My Current Location
+                        </button>
+                    </div>
+
+                    <% if(user.preferredLocation) { %>
+                        <div class="current-location-info">
+                            <h5><i class="fas fa-info-circle"></i> Current Location</h5>
+                            <p><%= user.preferredLocation.name %></p>
+                        </div>
+                    <% } %>
+
+                    <div class="selected-location" id="selectedLocation" style="display: none;">
+                        <div class="location-preview">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <h5 id="selectedLocationName"></h5>
+                                <p>Coordinates: <span id="selectedLocationCoords"></span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-primary btn-save" onclick="saveLocation()">
+                            <i class="fas fa-save"></i> Save Location
+                        </button>
+                        <button type="button" class="btn-outline btn-cancel" onclick="cancelEdit('location')">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="profile-card danger-zone">
+                <div class="card-header">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+                </div>
+                <div class="card-body">
+                    <div class="danger-content">
+                        <div class="danger-item">
+                            <div class="danger-icon">
+                                <i class="fas fa-redo"></i>
+                            </div>
+                            <div class="danger-info">
+                                <h4>Reset Profile Data</h4>
+                                <p>Clear all your skin profile data and start over</p>
+                            </div>
+                            <button class="btn-danger" onclick="resetProfileData()">
+                                Reset Data
+                            </button>
+                        </div>
+                        <div class="danger-item">
+                            <div class="danger-icon">
+                                <i class="fas fa-trash-alt"></i>
+                            </div>
+                            <div class="danger-info">
+                                <h4>Delete Account</h4>
+                                <p>Permanently delete your account and all data</p>
+                            </div>
+                            <button class="btn-danger" onclick="showDeleteModal()">
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Delete Account Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-icon danger">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <h3>Delete Your Account?</h3>
+        <p>This action cannot be undone. All your data, including profile information and history, will be permanently deleted.</p>
+        <div class="modal-actions">
+            <button class="btn-danger" onclick="deleteAccount()">
+                <i class="fas fa-trash-alt"></i> Yes, Delete Account
+            </button>
+            <button class="btn-outline" onclick="closeModal()">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-icon success">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h3 id="successTitle">Success!</h3>
+        <p id="successMessage">Your changes have been saved successfully.</p>
+        <div class="modal-actions">
+            <button class="btn-primary" onclick="closeModal()">
+                OK
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/profile.js"></script>
+</body>
+</html>

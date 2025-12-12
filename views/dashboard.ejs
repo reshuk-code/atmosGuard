@@ -1,0 +1,665 @@
+<!-- backend/views/dashboard.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - AtmosGuard</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Dashboard-specific styles */
+        .dashboard-header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px 0;
+        }
+
+        .dashboard-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .user-welcome h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .user-welcome p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        .dashboard-content {
+            padding: 40px 0;
+            background: #f8fafc;
+            min-height: calc(100vh - 300px);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .stat-icon.uv {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            color: white;
+        }
+
+        .stat-icon.aqi {
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            color: white;
+        }
+
+        .stat-icon.temp {
+            background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+            color: white;
+        }
+
+        .stat-icon.protection {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+        }
+
+        .stat-info h3 {
+            font-size: 2rem;
+            margin: 0 0 5px;
+            color: #1f2937;
+        }
+
+        .stat-info p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        /* Dashboard Sections */
+        .dashboard-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+            color: #1f2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header h2 i {
+            color: #4f46e5;
+        }
+
+        /* AQI Display */
+        .aqi-display {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .aqi-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            margin: 0 auto 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .aqi-value {
+            font-size: 2.5rem;
+            line-height: 1;
+        }
+
+        .aqi-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* UV Display */
+        .uv-display {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .uv-scale {
+            flex: 1;
+        }
+
+        .scale-bar {
+            height: 10px;
+            background: linear-gradient(to right,
+            #10b981 0%,
+            #10b981 18%,
+            #f59e0b 18%,
+            #f59e0b 45%,
+            #f97316 45%,
+            #f97316 64%,
+            #ef4444 64%,
+            #ef4444 91%,
+            #7f1d1d 91%
+            );
+            border-radius: 5px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .scale-markers {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+
+        .uv-info {
+            flex: 1;
+        }
+
+        .uv-level {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .uv-description {
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .action-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .action-card:hover {
+            border-color: #4f46e5;
+            transform: translateY(-5px);
+            background: white;
+        }
+
+        .action-card i {
+            font-size: 2rem;
+            color: #4f46e5;
+            margin-bottom: 15px;
+        }
+
+        .action-card h4 {
+            margin: 0 0 10px;
+            color: #1f2937;
+        }
+
+        .action-card p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        /* Clothing Recommendations */
+        .clothing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .clothing-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .clothing-icon {
+            width: 50px;
+            height: 50px;
+            background: #4f46e5;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .clothing-info h4 {
+            margin: 0 0 5px;
+            color: #1f2937;
+            font-size: 0.95rem;
+        }
+
+        .clothing-info p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="container">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <span>AtmosGuard</span>
+        </div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/profile">Profile</a>
+            <a href="#" id="logoutBtn" class="btn-outline">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Dashboard Header -->
+<div class="dashboard-header">
+    <div class="container">
+        <div class="dashboard-nav">
+            <div class="user-welcome">
+                <h1>Welcome back, <%= user.name %>! 👋</h1>
+                <p id="greetingTime">Good morning! Here's your sun protection overview for today.</p>
+            </div>
+            <div class="location-display">
+                    <span class="location-badge">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <%= user.preferredLocation ? user.preferredLocation.name : 'Set your location' %>
+                    </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="dashboard-content">
+    <div class="container">
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon uv">
+                    <i class="fas fa-sun"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="uvIndex">5.2</h3>
+                    <p>UV Index • <span id="uvLevel">Moderate</span></p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon aqi">
+                    <i class="fas fa-wind"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="aqiValue">42</h3>
+                    <p>Air Quality • <span id="aqiLevel">Good</span></p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon temp">
+                    <i class="fas fa-thermometer-half"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="temperature">28°C</h3>
+                    <p>Temperature • Feels like <span id="feelsLike">30°C</span></p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon protection">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="protectionScore">85%</h3>
+                    <p>Protection Score • <span id="streak">7 day streak</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- UV Index Details -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2><i class="fas fa-sun"></i> UV Index Today</h2>
+                <span class="last-updated">Updated just now</span>
+            </div>
+            <div class="uv-display">
+                <div class="uv-scale">
+                    <div class="scale-bar">
+                        <div class="scale-indicator" id="scaleIndicator" style="left: 45%;"></div>
+                    </div>
+                    <div class="scale-markers">
+                        <span>0</span>
+                        <span>3</span>
+                        <span>6</span>
+                        <span>8</span>
+                        <span>11+</span>
+                    </div>
+                </div>
+                <div class="uv-info">
+                    <div class="uv-level" id="uvRiskLevel">Moderate Risk</div>
+                    <p class="uv-description" id="uvDescription">
+                        UV radiation is moderate. Protection is needed, especially if you have fair skin.
+                        Wear protective clothing, sunglasses, and sunscreen SPF 30+.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Air Quality Details -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2><i class="fas fa-wind"></i> Air Quality Index</h2>
+                <span class="last-updated">Real-time data</span>
+            </div>
+            <div class="aqi-display">
+                <div class="aqi-circle" id="aqiCircle">
+                    <div class="aqi-value" id="aqiNumber">42</div>
+                    <div class="aqi-label" id="aqiStatus">Good</div>
+                </div>
+                <p id="aqiRecommendation">
+                    Air quality is satisfactory. It's a good day for outdoor activities.
+                </p>
+            </div>
+        </div>
+
+        <!-- Today's Clothing Recommendations -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2><i class="fas fa-t-shirt"></i> Today's Clothing Recommendations</h2>
+                <button class="btn-outline" onclick="refreshRecommendations()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+            <div class="clothing-grid">
+                <div class="clothing-card">
+                    <div class="clothing-icon">
+                        <i class="fas fa-hat-cowboy"></i>
+                    </div>
+                    <div class="clothing-info">
+                        <h4>Head Protection</h4>
+                        <p id="headRec">Wide-brimmed hat recommended</p>
+                    </div>
+                </div>
+
+                <div class="clothing-card">
+                    <div class="clothing-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="clothing-info">
+                        <h4>Upper Body</h4>
+                        <p id="upperBodyRec">Long-sleeve shirt needed</p>
+                    </div>
+                </div>
+
+                <div class="clothing-card">
+                    <div class="clothing-icon">
+                        <i class="fas fa-vest"></i>
+                    </div>
+                    <div class="clothing-info">
+                        <h4>Lower Body</h4>
+                        <p id="lowerBodyRec">Long pants recommended</p>
+                    </div>
+                </div>
+
+                <div class="clothing-card">
+                    <div class="clothing-icon">
+                        <i class="fas fa-sun"></i>
+                    </div>
+                    <div class="clothing-info">
+                        <h4>Sunscreen</h4>
+                        <p id="sunscreenRec">SPF 50+ every 2 hours</p>
+                    </div>
+                </div>
+
+                <div class="clothing-card">
+                    <div class="clothing-icon">
+                        <i class="fas fa-glasses"></i>
+                    </div>
+                    <div class="clothing-info">
+                        <h4>Accessories</h4>
+                        <p id="accessoriesRec">UV-blocking sunglasses</p>
+                    </div>
+                </div>
+
+                <div class="clothing-card">
+                    <div class="clothing-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="clothing-info">
+                        <h4>Timing</h4>
+                        <p id="timingRec">Avoid 10 AM - 4 PM</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="dashboard-section">
+            <div class="section-header">
+                <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+            </div>
+            <div class="quick-actions">
+                <div class="action-card" onclick="location.href='/profile'">
+                    <i class="fas fa-user-edit"></i>
+                    <h4>Edit Profile</h4>
+                    <p>Update your skin type, age, or location</p>
+                </div>
+
+                <div class="action-card" onclick="getAIAdvice()">
+                    <i class="fas fa-robot"></i>
+                    <h4>Get AI Advice</h4>
+                    <p>Detailed personalized protection plan</p>
+                </div>
+
+                <div class="action-card" onclick="location.href='/history'">
+                    <i class="fas fa-history"></i>
+                    <h4>View History</h4>
+                    <p>See your protection patterns</p>
+                </div>
+
+                <div class="action-card" onclick="printPlan()">
+                    <i class="fas fa-print"></i>
+                    <h4>Print Plan</h4>
+                    <p>Printable protection guide</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Load dashboard data
+    async function loadDashboardData() {
+        try {
+            const response = await fetch('/api/dashboard');
+            const data = await response.json();
+
+            if (data.success) {
+                updateDashboard(data.data);
+            }
+        } catch (error) {
+            console.error('Failed to load dashboard data:', error);
+        }
+    }
+
+    function updateDashboard(data) {
+        // Update UV data
+        document.getElementById('uvIndex').textContent = data.uv.index;
+        document.getElementById('uvLevel').textContent = data.uv.level;
+
+        // Update UV risk level and description
+        document.getElementById('uvRiskLevel').textContent = data.uv.level + ' Risk';
+        document.getElementById('uvDescription').textContent = data.uv.risk;
+
+        // Update AQI data
+        document.getElementById('aqiValue').textContent = data.airQuality.aqi;
+        document.getElementById('aqiLevel').textContent = data.airQuality.aqiDescription.level;
+        document.getElementById('aqiNumber').textContent = data.airQuality.aqi;
+        document.getElementById('aqiStatus').textContent = data.airQuality.aqiDescription.level;
+        document.getElementById('aqiRecommendation').textContent = data.airQuality.aqiDescription.recommendation;
+
+        // Update AQI circle color
+        document.getElementById('aqiCircle').style.background = `linear-gradient(135deg, ${data.airQuality.aqiDescription.color} 0%, ${lightenColor(data.airQuality.aqiDescription.color, 20)} 100%)`;
+
+        // Update temperature
+        document.getElementById('temperature').textContent = data.weather.temperature + '°C';
+        document.getElementById('feelsLike').textContent = data.weather.feelsLike + '°C';
+
+        // Update protection score
+        document.getElementById('protectionScore').textContent = data.stats.protectionScore + '%';
+
+        // Update greeting based on time
+        setGreeting();
+
+        // Update clothing recommendations
+        if (data.recommendations) {
+            updateClothingRecommendations(data.recommendations);
+        }
+    }
+
+    function updateClothingRecommendations(rec) {
+        // Update each category with first recommendation
+        if (rec.head && rec.head.length > 0) {
+            document.getElementById('headRec').textContent = rec.head[0];
+        }
+        if (rec.upperBody && rec.upperBody.length > 0) {
+            document.getElementById('upperBodyRec').textContent = rec.upperBody[0];
+        }
+        if (rec.lowerBody && rec.lowerBody.length > 0) {
+            document.getElementById('lowerBodyRec').textContent = rec.lowerBody[0];
+        }
+        if (rec.sunscreen && rec.sunscreen.length > 0) {
+            document.getElementById('sunscreenRec').textContent = rec.sunscreen[0];
+        }
+        if (rec.accessories && rec.accessories.length > 0) {
+            document.getElementById('accessoriesRec').textContent = rec.accessories[0];
+        }
+        if (rec.timing && rec.timing.length > 0) {
+            document.getElementById('timingRec').textContent = rec.timing[0];
+        }
+    }
+
+    function setGreeting() {
+        const hour = new Date().getHours();
+        let greeting = '';
+
+        if (hour < 12) greeting = 'Good morning';
+        else if (hour < 18) greeting = 'Good afternoon';
+        else greeting = 'Good evening';
+
+        document.getElementById('greetingTime').textContent = `${greeting}! Here's your sun protection overview for today.`;
+    }
+
+    function refreshRecommendations() {
+        loadDashboardData();
+        showNotification('Recommendations refreshed!', 'success');
+    }
+
+    function getAIAdvice() {
+        window.location.href = '/api/ai/advice';
+    }
+
+    function printPlan() {
+        window.print();
+    }
+
+    function showNotification(message, type) {
+        // Simple notification implementation
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    // Helper function to lighten colors
+    function lightenColor(color, percent) {
+        const num = parseInt(color.replace("#", ""), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = (num >> 16) + amt;
+        const G = (num >> 8 & 0x00FF) + amt;
+        const B = (num & 0x0000FF) + amt;
+        return `#${(
+            0x1000000 +
+            (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
+            (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
+            (B < 255 ? B < 1 ? 0 : B : 255)
+        ).toString(16).slice(1)}`;
+    }
+
+    // Load data on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadDashboardData();
+        // Auto-refresh every 30 minutes
+        setInterval(loadDashboardData, 30 * 60 * 1000);
+    });
+</script>
+</body>
+</html>

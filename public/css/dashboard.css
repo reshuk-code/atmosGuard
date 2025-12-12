@@ -1,0 +1,644 @@
+/* backend/public/css/dashboard.css */
+.dashboard-container {
+    padding: 100px 20px 40px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+/* Welcome Section */
+.welcome-section {
+    margin-bottom: 2rem;
+}
+
+.welcome-section h1 {
+    font-size: 2.5rem;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-section p {
+    font-size: 1.125rem;
+    color: #6b7280;
+}
+
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Dashboard Cards */
+.dashboard-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.card-header h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1f2937;
+}
+
+.card-header h3 i {
+    color: #4f46e5;
+}
+
+.edit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #4f46e5;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    transition: background 0.3s;
+}
+
+.edit-btn:hover {
+    background: #f3f4f6;
+}
+
+/* UV Card */
+.uv-card .card-header .location {
+    font-size: 0.875rem;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.uv-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2rem;
+    align-items: center;
+}
+
+@media (max-width: 768px) {
+    .uv-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+.uv-circle {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    margin: 0 auto;
+}
+
+.uv-value {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1;
+}
+
+.uv-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.risk-level {
+    margin-bottom: 1.5rem;
+}
+
+.risk-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.risk-badge.low {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.risk-badge.moderate {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.risk-badge.high {
+    background: #fde68a;
+    color: #92400e;
+}
+
+.risk-badge.very-high {
+    background: #fca5a5;
+    color: #991b1b;
+}
+
+.risk-badge.extreme {
+    background: #fecaca;
+    color: #7f1d1d;
+}
+
+.risk-level p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+.weather-info {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.weather-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #4b5563;
+}
+
+.weather-item i {
+    color: #4f46e5;
+}
+
+/* Tip Card */
+.tip-content {
+    background: #f0f9ff;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border-left: 4px solid #0ea5e9;
+}
+
+.tip-content p {
+    margin: 0;
+    color: #0369a1;
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+/* Profile Card */
+.profile-content {
+    display: grid;
+    gap: 1rem;
+}
+
+.profile-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.profile-item:last-child {
+    border-bottom: none;
+}
+
+.profile-item .label {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.profile-item .value {
+    font-weight: 500;
+    color: #1f2937;
+    text-align: right;
+}
+
+/* Stats Card */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    transition: background 0.3s;
+}
+
+.stat-item:hover {
+    background: #f1f5f9;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+/* Activity Card */
+.activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.activity-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.75rem;
+    border-radius: 8px;
+    transition: background 0.3s;
+}
+
+.activity-item:hover {
+    background: #f9fafb;
+}
+
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4f46e5;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-content p {
+    margin: 0 0 4px;
+    color: #1f2937;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.activity-time {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+/* Add to dashboard.css */
+
+/* User Dropdown Styles */
+.user-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.user-menu-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.user-menu-btn:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+}
+
+.user-menu-btn i:first-child {
+    font-size: 1.25rem;
+    color: #4f46e5;
+}
+
+.user-menu-btn i:last-child {
+    font-size: 0.75rem;
+    margin-left: 4px;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    padding: 0.5rem 0;
+    min-width: 200px;
+    z-index: 1000;
+    display: none;
+    margin-top: 0.5rem;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-menu a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.75rem 1rem;
+    color: #374151;
+    text-decoration: none;
+    transition: background 0.3s;
+}
+
+.dropdown-menu a:hover {
+    background: #f9fafb;
+    color: #4f46e5;
+}
+
+.dropdown-menu a i {
+    width: 16px;
+    text-align: center;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 0.5rem 0;
+}
+
+#logoutBtn {
+    color: #ef4444;
+}
+
+#logoutBtn:hover {
+    background: #fef2f2;
+}
+
+/* Responsive dropdown */
+@media (max-width: 768px) {
+    .user-menu-btn span {
+        display: none;
+    }
+
+    .dropdown-menu {
+        right: -50px;
+    }
+}
+
+/* UV Circle Colors - More specific gradients */
+.uv-circle.low {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
+}
+
+.uv-circle.moderate {
+    background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%) !important;
+}
+
+.uv-circle.high {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%) !important;
+}
+
+.uv-circle.very-high {
+    background: linear-gradient(135deg, #ef4444 0%, #f87171 100%) !important;
+}
+
+.uv-circle.extreme {
+    background: linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%) !important;
+}
+
+/* Risk Badge Colors */
+.risk-badge {
+    padding: 0.375rem 1rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.risk-badge.low {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+}
+
+.risk-badge.moderate {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+}
+
+.risk-badge.high {
+    background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+    color: #92400e;
+}
+
+.risk-badge.very-high {
+    background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+    color: #991b1b;
+}
+
+.risk-badge.extreme {
+    background: linear-gradient(135deg, #fca5a5 0%, #f87171 100%);
+    color: #7f1d1d;
+}
+
+/* Activity Icons */
+.activity-icon.uv_alert i {
+    color: #f59e0b;
+}
+
+.activity-icon.advice i {
+    color: #4f46e5;
+}
+
+.activity-icon.profile i {
+    color: #10b981;
+}
+
+/* Loading Animation */
+.loading-shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: #6b7280;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+}
+
+.empty-state p {
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* Card Hover Effects */
+.dashboard-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Improvements */
+@media (max-width: 1024px) {
+    .dashboard-grid {
+        gap: 1.5rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 80px 15px 30px;
+    }
+
+    .welcome-section h1 {
+        font-size: 2rem;
+    }
+
+    .welcome-section p {
+        font-size: 1rem;
+    }
+
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .card-header h3 {
+        font-size: 1.125rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .stat-item {
+        padding: 0.75rem;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-section h1 {
+        font-size: 1.75rem;
+    }
+
+    .dashboard-card {
+        padding: 1.25rem;
+    }
+
+    .uv-content {
+        gap: 1.5rem;
+    }
+
+    .uv-circle {
+        width: 120px;
+        height: 120px;
+    }
+
+    .uv-value {
+        font-size: 2.5rem;
+    }
+
+    .weather-info {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+}

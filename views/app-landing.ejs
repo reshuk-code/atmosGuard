@@ -1,0 +1,64 @@
+<!-- backend/views/app-landing.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="container">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+            <span>AtmosGuard</span>
+        </div>
+        <a href="/" class="btn-outline">Back to Home</a>
+    </div>
+</nav>
+
+<main class="container" style="padding: 120px 20px; text-align: center;">
+    <h1 style="font-size: 3rem; margin-bottom: 1rem;">AtmosGuard App</h1>
+    <p style="font-size: 1.2rem; color: #6b7280; max-width: 600px; margin: 0 auto 3rem;">
+        Our mobile app is coming soon! In the meantime, you can use our web application.
+    </p>
+
+    <div style="display: flex; justify-content: center; gap: 2rem; margin-bottom: 3rem;">
+        <a href="#" class="btn-primary btn-large" style="opacity: 0.6; cursor: not-allowed;">
+            <i class="fab fa-apple"></i> App Store (Coming Soon)
+        </a>
+        <a href="#" class="btn-primary btn-large" style="opacity: 0.6; cursor: not-allowed;">
+            <i class="fab fa-google-play"></i> Play Store (Coming Soon)
+        </a>
+    </div>
+
+    <div style="background: #f9fafb; padding: 2rem; border-radius: 12px; max-width: 800px; margin: 0 auto;">
+        <h2 style="margin-bottom: 1rem;">Use Our Web App</h2>
+        <p style="margin-bottom: 2rem;">You can access all features through our web application:</p>
+        <div style="display: flex; gap: 1rem; justify-content: center;">
+            <a href="/api/auth/register" class="btn-primary">Sign Up</a>
+            <a href="/api/auth/login" class="btn-outline">Sign In</a>
+        </div>
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-shield-alt"></i>
+                <span>AtmosGuard</span>
+            </div>
+            <div class="footer-links">
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/terms">Terms of Service</a>
+                <a href="mailto:support@atmosguard.com">Contact</a>
+            </div>
+        </div>
+        <p class="copyright">© 2024 AtmosGuard. All rights reserved.</p>
+    </div>
+</footer>
+</body>
+</html>
