@@ -1,4 +1,3 @@
-<!-- backend/views/dashboard.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,119 +6,296 @@
     <title>Dashboard - AtmosGuard</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        /* Dashboard-specific styles */
-        .dashboard-header {
+        /* Dashboard enhancements */
+        .dashboard-main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 1024px) {
+            .dashboard-main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Welcome Card */
+        .welcome-card {
             background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             color: white;
-            padding: 40px 0;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            grid-column: 1 / -1;
         }
 
-        .dashboard-nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .user-welcome h1 {
+        .welcome-content h1 {
             font-size: 2.5rem;
-            margin-bottom: 10px;
+            margin-bottom: 0.5rem;
         }
 
-        .user-welcome p {
+        .welcome-content p {
             opacity: 0.9;
             font-size: 1.1rem;
+            margin-bottom: 1.5rem;
         }
 
-        /* Main Content */
-        .dashboard-content {
-            padding: 40px 0;
-            background: #f8fafc;
-            min-height: calc(100vh - 300px);
-        }
-
-        /* Stats Cards */
-        .stats-grid {
+        .quick-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
         }
 
-        .stat-card {
+        .stat-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+
+        /* UV Index Card */
+        .uv-card-enhanced {
             background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .uv-visual {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 2rem;
+            margin: 1.5rem 0;
         }
 
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
+        .uv-gauge {
+            width: 150px;
+            height: 150px;
+            position: relative;
+        }
+
+        .gauge-background {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                    #10b981 0% 16%,
+                    #f59e0b 16% 41%,
+                    #f97316 41% 58%,
+                    #ef4444 58% 83%,
+                    #7f1d1d 83% 100%
+            );
+            position: relative;
+        }
+
+        .gauge-inner {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            background: white;
+            border-radius: 50%;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
         }
 
-        .stat-icon.uv {
-            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
-            color: white;
-        }
-
-        .stat-icon.aqi {
-            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-            color: white;
-        }
-
-        .stat-icon.temp {
-            background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
-            color: white;
-        }
-
-        .stat-icon.protection {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            color: white;
-        }
-
-        .stat-info h3 {
-            font-size: 2rem;
-            margin: 0 0 5px;
+        .uv-index-display {
+            font-size: 2.5rem;
+            font-weight: 700;
             color: #1f2937;
         }
 
-        .stat-info p {
-            margin: 0;
+        .uv-level-text {
+            font-size: 1rem;
             color: #6b7280;
-            font-size: 0.9rem;
         }
 
-        /* Dashboard Sections */
-        .dashboard-section {
+        .protection-tips {
+            margin-top: 1.5rem;
+        }
+
+        .tip-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .tip-item i {
+            color: #4f46e5;
+        }
+
+        /* Weather & Air Quality */
+        .weather-aqi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .weather-aqi-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .weather-card, .aqi-card {
             background: white;
-            border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
-        .section-header {
+        .weather-header, .aqi-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .weather-header i, .aqi-header i {
+            font-size: 1.25rem;
+            color: #4f46e5;
+        }
+
+        .weather-info, .aqi-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .temperature {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+
+        .weather-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        /* Recommendations Card */
+        .recommendations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .recommendation-item {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .recommendation-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .recommendation-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+        }
+
+        .recommendation-content h4 {
+            margin: 0 0 0.25rem;
+            font-size: 0.875rem;
+            color: #1f2937;
+        }
+
+        .recommendation-content p {
+            margin: 0;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        /* Profile Summary Card */
+        .profile-summary-card {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .profile-stat {
+            text-align: center;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+
+        .profile-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-stat-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+    </style>
+    <!-- Add this CSS in the style section -->
+    <style>
+        /* AI Recommendations Section */
+        .ai-recommendations-section {
+            margin-top: 2rem;
+        }
+
+        .recommendations-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #f3f4f6;
+            margin-bottom: 1.5rem;
         }
 
-        .section-header h2 {
+        .recommendations-header h3 {
             font-size: 1.5rem;
             color: #1f2937;
             margin: 0;
@@ -128,169 +304,232 @@
             gap: 10px;
         }
 
-        .section-header h2 i {
-            color: #4f46e5;
-        }
-
-        /* AQI Display */
-        .aqi-display {
-            text-align: center;
-            padding: 30px;
-        }
-
-        .aqi-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-            margin: 0 auto 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        .ai-powered-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
             font-weight: 600;
-        }
-
-        .aqi-value {
-            font-size: 2.5rem;
-            line-height: 1;
-        }
-
-        .aqi-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-
-        /* UV Display */
-        .uv-display {
             display: flex;
             align-items: center;
-            gap: 30px;
+            gap: 5px;
         }
 
-        .uv-scale {
-            flex: 1;
-        }
-
-        .scale-bar {
-            height: 10px;
-            background: linear-gradient(to right,
-            #10b981 0%,
-            #10b981 18%,
-            #f59e0b 18%,
-            #f59e0b 45%,
-            #f97316 45%,
-            #f97316 64%,
-            #ef4444 64%,
-            #ef4444 91%,
-            #7f1d1d 91%
-            );
-            border-radius: 5px;
-            margin-bottom: 10px;
-            position: relative;
-        }
-
-        .scale-markers {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: #6b7280;
-        }
-
-        .uv-info {
-            flex: 1;
-        }
-
-        .uv-level {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #1f2937;
-            margin-bottom: 10px;
-        }
-
-        .uv-description {
-            color: #6b7280;
-            line-height: 1.5;
-        }
-
-        /* Quick Actions */
-        .quick-actions {
+        .recommendations-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
         }
 
-        .action-card {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 25px;
-            text-align: center;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-        }
-
-        .action-card:hover {
-            border-color: #4f46e5;
-            transform: translateY(-5px);
+        .recommendation-category {
             background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s;
         }
 
-        .action-card i {
-            font-size: 2rem;
-            color: #4f46e5;
-            margin-bottom: 15px;
+        .recommendation-category:hover {
+            transform: translateY(-5px);
         }
 
-        .action-card h4 {
-            margin: 0 0 10px;
-            color: #1f2937;
-        }
-
-        .action-card p {
-            margin: 0;
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
-
-        /* Clothing Recommendations */
-        .clothing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-        }
-
-        .clothing-card {
-            background: #f8fafc;
-            border-radius: 12px;
-            padding: 20px;
+        .category-header {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f3f4f6;
         }
 
-        .clothing-icon {
+        .category-icon {
             width: 50px;
             height: 50px;
-            background: #4f46e5;
-            border-radius: 10px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.2rem;
+            font-size: 1.25rem;
         }
 
-        .clothing-info h4 {
+        .category-title h4 {
             margin: 0 0 5px;
             color: #1f2937;
-            font-size: 0.95rem;
+            font-size: 1.1rem;
         }
 
-        .clothing-info p {
+        .category-title p {
             margin: 0;
             color: #6b7280;
             font-size: 0.85rem;
+        }
+
+        .recommendation-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .recommendation-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-check {
+            color: #10b981;
+            font-size: 0.875rem;
+            margin-top: 2px;
+        }
+
+        .item-text {
+            flex: 1;
+            color: #374151;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .recommendation-images {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+
+        .recommendation-image {
+            width: 120px;
+            height: 120px;
+            border-radius: 12px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .recommendation-image:hover {
+            transform: scale(1.05);
+        }
+
+        .overall-advice {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-left: 4px solid #0ea5e9;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+        }
+
+        .overall-advice h4 {
+            margin: 0 0 0.75rem;
+            color: #0369a1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .overall-advice p {
+            margin: 0;
+            color: #0c4a6e;
+            line-height: 1.6;
+        }
+
+        .special-considerations {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+        }
+
+        .special-considerations h4 {
+            margin: 0 0 0.75rem;
+            color: #92400e;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .special-considerations ul {
+            margin: 0;
+            padding-left: 1.5rem;
+            color: #92400e;
+        }
+
+        .special-considerations li {
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        /* Refresh button */
+        .refresh-recommendations {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem 1rem;
+            background: white;
+            border: 2px solid #4f46e5;
+            color: #4f46e5;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .refresh-recommendations:hover {
+            background: #4f46e5;
+            color: white;
+        }
+
+        /* Image modal */
+        .image-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .image-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .modal-image {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .image-caption {
+            color: white;
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -302,225 +541,287 @@
             <i class="fas fa-shield-alt"></i>
             <span>AtmosGuard</span>
         </div>
-        <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="/profile">Profile</a>
-            <a href="#" id="logoutBtn" class="btn-outline">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
+        <div class="nav-links" id="navLinks">
+            <!-- Will be populated by JavaScript -->
         </div>
     </div>
 </nav>
 
-<!-- Dashboard Header -->
-<div class="dashboard-header">
+<!-- Dashboard Container -->
+<div class="dashboard-container">
     <div class="container">
-        <div class="dashboard-nav">
-            <div class="user-welcome">
-                <h1>Welcome back, <%= user.name %>! 👋</h1>
-                <p id="greetingTime">Good morning! Here's your sun protection overview for today.</p>
-            </div>
-            <div class="location-display">
-                    <span class="location-badge">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <%= user.preferredLocation ? user.preferredLocation.name : 'Set your location' %>
-                    </span>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Main Content -->
-<div class="dashboard-content">
-    <div class="container">
-        <!-- Stats Overview -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon uv">
-                    <i class="fas fa-sun"></i>
-                </div>
-                <div class="stat-info">
-                    <h3 id="uvIndex">5.2</h3>
-                    <p>UV Index • <span id="uvLevel">Moderate</span></p>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon aqi">
-                    <i class="fas fa-wind"></i>
-                </div>
-                <div class="stat-info">
-                    <h3 id="aqiValue">42</h3>
-                    <p>Air Quality • <span id="aqiLevel">Good</span></p>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon temp">
-                    <i class="fas fa-thermometer-half"></i>
-                </div>
-                <div class="stat-info">
-                    <h3 id="temperature">28°C</h3>
-                    <p>Temperature • Feels like <span id="feelsLike">30°C</span></p>
-                </div>
-            </div>
-
-            <div class="stat-card">
-                <div class="stat-icon protection">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <div class="stat-info">
-                    <h3 id="protectionScore">85%</h3>
-                    <p>Protection Score • <span id="streak">7 day streak</span></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- UV Index Details -->
-        <div class="dashboard-section">
-            <div class="section-header">
-                <h2><i class="fas fa-sun"></i> UV Index Today</h2>
-                <span class="last-updated">Updated just now</span>
-            </div>
-            <div class="uv-display">
-                <div class="uv-scale">
-                    <div class="scale-bar">
-                        <div class="scale-indicator" id="scaleIndicator" style="left: 45%;"></div>
+        <!-- Welcome Card -->
+        <div class="welcome-card">
+            <div class="welcome-content">
+                <h1 id="greeting">Good morning, <%= user.name %>!</h1>
+                <p id="dashboardSummary">Here's your personalized sun protection overview for today.</p>
+                <div class="quick-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="uvIndexValue">--</div>
+                        <div class="stat-label">UV Index</div>
                     </div>
-                    <div class="scale-markers">
-                        <span>0</span>
-                        <span>3</span>
-                        <span>6</span>
-                        <span>8</span>
-                        <span>11+</span>
+                    <div class="stat-item">
+                        <div class="stat-value" id="temperatureValue">--°C</div>
+                        <div class="stat-label">Temperature</div>
                     </div>
-                </div>
-                <div class="uv-info">
-                    <div class="uv-level" id="uvRiskLevel">Moderate Risk</div>
-                    <p class="uv-description" id="uvDescription">
-                        UV radiation is moderate. Protection is needed, especially if you have fair skin.
-                        Wear protective clothing, sunglasses, and sunscreen SPF 30+.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Air Quality Details -->
-        <div class="dashboard-section">
-            <div class="section-header">
-                <h2><i class="fas fa-wind"></i> Air Quality Index</h2>
-                <span class="last-updated">Real-time data</span>
-            </div>
-            <div class="aqi-display">
-                <div class="aqi-circle" id="aqiCircle">
-                    <div class="aqi-value" id="aqiNumber">42</div>
-                    <div class="aqi-label" id="aqiStatus">Good</div>
-                </div>
-                <p id="aqiRecommendation">
-                    Air quality is satisfactory. It's a good day for outdoor activities.
-                </p>
-            </div>
-        </div>
-
-        <!-- Today's Clothing Recommendations -->
-        <div class="dashboard-section">
-            <div class="section-header">
-                <h2><i class="fas fa-t-shirt"></i> Today's Clothing Recommendations</h2>
-                <button class="btn-outline" onclick="refreshRecommendations()">
-                    <i class="fas fa-sync-alt"></i> Refresh
-                </button>
-            </div>
-            <div class="clothing-grid">
-                <div class="clothing-card">
-                    <div class="clothing-icon">
-                        <i class="fas fa-hat-cowboy"></i>
+                    <div class="stat-item">
+                        <div class="stat-value" id="aqiValue">--</div>
+                        <div class="stat-label">Air Quality</div>
                     </div>
-                    <div class="clothing-info">
-                        <h4>Head Protection</h4>
-                        <p id="headRec">Wide-brimmed hat recommended</p>
-                    </div>
-                </div>
-
-                <div class="clothing-card">
-                    <div class="clothing-icon">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="clothing-info">
-                        <h4>Upper Body</h4>
-                        <p id="upperBodyRec">Long-sleeve shirt needed</p>
-                    </div>
-                </div>
-
-                <div class="clothing-card">
-                    <div class="clothing-icon">
-                        <i class="fas fa-vest"></i>
-                    </div>
-                    <div class="clothing-info">
-                        <h4>Lower Body</h4>
-                        <p id="lowerBodyRec">Long pants recommended</p>
-                    </div>
-                </div>
-
-                <div class="clothing-card">
-                    <div class="clothing-icon">
-                        <i class="fas fa-sun"></i>
-                    </div>
-                    <div class="clothing-info">
-                        <h4>Sunscreen</h4>
-                        <p id="sunscreenRec">SPF 50+ every 2 hours</p>
-                    </div>
-                </div>
-
-                <div class="clothing-card">
-                    <div class="clothing-icon">
-                        <i class="fas fa-glasses"></i>
-                    </div>
-                    <div class="clothing-info">
-                        <h4>Accessories</h4>
-                        <p id="accessoriesRec">UV-blocking sunglasses</p>
-                    </div>
-                </div>
-
-                <div class="clothing-card">
-                    <div class="clothing-icon">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <div class="clothing-info">
-                        <h4>Timing</h4>
-                        <p id="timingRec">Avoid 10 AM - 4 PM</p>
+                    <div class="stat-item">
+                        <div class="stat-value" id="protectionScore">--%</div>
+                        <div class="stat-label">Protection Score</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="dashboard-section">
-            <div class="section-header">
-                <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
+        <div class="dashboard-main">
+            <!-- Left Column -->
+            <div class="dashboard-left">
+                <!-- UV Index Card -->
+                <div class="uv-card-enhanced">
+                    <div class="card-header">
+                        <h3><i class="fas fa-sun"></i> UV Index Today</h3>
+                        <span class="last-updated" id="uvLastUpdated">Updated just now</span>
+                    </div>
+
+                    <div class="uv-visual">
+                        <div class="uv-gauge">
+                            <div class="gauge-background"></div>
+                            <div class="gauge-inner">
+                                <div class="uv-index-display" id="uvIndexDisplay">--</div>
+                                <div class="uv-level-text" id="uvLevelText">Loading...</div>
+                            </div>
+                        </div>
+                        <div class="uv-info">
+                            <div class="risk-level">
+                                <span class="risk-badge" id="riskBadge">Moderate</span>
+                                <p id="riskDescription">Moderate risk from UV rays</p>
+                            </div>
+                            <div class="protection-tips" id="protectionTips">
+                                <!-- Tips will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="weather-aqi-grid">
+                        <div class="weather-card">
+                            <div class="weather-header">
+                                <i class="fas fa-thermometer-half"></i>
+                                <h4>Weather</h4>
+                            </div>
+                            <div class="weather-info">
+                                <div class="temperature" id="temperatureDisplay">--°C</div>
+                                <div class="weather-details">
+                                    <div class="detail">
+                                        <i class="fas fa-tint"></i>
+                                        <span>Humidity: <strong id="humidityValue">--%</strong></span>
+                                    </div>
+                                    <div class="detail">
+                                        <i class="fas fa-wind"></i>
+                                        <span>Wind: <strong id="windSpeed">-- km/h</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="aqi-card">
+                            <div class="aqi-header">
+                                <i class="fas fa-wind"></i>
+                                <h4>Air Quality</h4>
+                            </div>
+                            <div class="aqi-info">
+                                <div class="aqi-value-circle">
+                                    <div class="aqi-value" id="aqiValueDisplay">--</div>
+                                    <div class="aqi-level" id="aqiLevelDisplay">--</div>
+                                </div>
+                                <div class="aqi-details">
+                                    <p id="aqiDescription">Air quality is satisfactory</p>
+                                    <div class="pollutants">
+                                        <span>PM2.5: <strong id="pm25Value">--</strong></span>
+                                        <span>O₃: <strong id="o3Value">--</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="uv-card-enhanced">
+
+
+                    <div class="recommendations-grid" id="recommendationsGrid">
+                        <!-- AI Clothing Recommendations -->
+                        <div class="ai-recommendations-section">
+                            <div class="recommendations-header">
+                                <h3>
+                                    <i class="fas fa-tshirt"></i>
+                                    Today's Clothing Recommendations
+                                    <span class="ai-powered-badge">
+                <i class="fas fa-robot"></i> AI-Powered
+            </span>
+                                </h3>
+                                <button class="refresh-recommendations" onclick="refreshAIRecommendations()">
+                                    <i class="fas fa-sync-alt"></i> Refresh Recommendations
+                                </button>
+                            </div>
+
+                            <div id="aiRecommendations">
+                                <div class="loading-recommendations" style="text-align: center; padding: 3rem;">
+                                    <div class="loader" style="width: 50px; height: 50px; margin: 0 auto 1rem;"></div>
+                                    <p>Generating your personalized recommendations...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Image Modal -->
+                        <div class="image-modal" id="imageModal">
+                            <div class="modal-content">
+                                <button class="modal-close" onclick="closeImageModal()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <img class="modal-image" id="modalImage" src="" alt="">
+                                <div class="image-caption" id="imageCaption"></div>
+                            </div>
+                        </div>
+
+                        <!-- Image Modal -->
+                        <div class="image-modal" id="imageModal">
+                            <div class="modal-content">
+                                <button class="modal-close" onclick="closeImageModal()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <img class="modal-image" id="modalImage" src="" alt="">
+                                <div class="image-caption" id="imageCaption"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="quick-actions">
-                <div class="action-card" onclick="location.href='/profile'">
-                    <i class="fas fa-user-edit"></i>
-                    <h4>Edit Profile</h4>
-                    <p>Update your skin type, age, or location</p>
+
+            <!-- Right Column -->
+            <div class="dashboard-right">
+                <!-- Profile Summary -->
+                <div class="profile-summary-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user-circle"></i> Your Profile</h3>
+                        <a href="/profile" class="edit-btn">
+                            <i class="fas fa-edit"></i> Edit
+                        </a>
+                    </div>
+
+                    <div class="profile-info">
+                        <div class="info-item">
+                            <span class="label">Skin Type</span>
+                            <span class="value" id="profileSkinType">
+                                <%= user.skinType || 'Not set' %>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Age</span>
+                            <span class="value" id="profileAge">
+                                <%= user.age ? user.age + ' years' : 'Not set' %>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Condition</span>
+                            <span class="value" id="profileCondition">
+                                <%= user.skinCondition ?
+                                        user.skinCondition.charAt(0).toUpperCase() + user.skinCondition.slice(1) :
+                                        'Not set'
+                                %>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Cancer History</span>
+                            <span class="value" id="profileCancerHistory">
+                                <%= user.hasSkinCancerHistory ? 'Yes' : 'No' %>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Location</span>
+                            <span class="value" id="profileLocation">
+                                <%= user.preferredLocation ? user.preferredLocation.name : 'Not set' %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <div class="profile-stat-value" id="statDays">0</div>
+                            <div class="profile-stat-label">Days Protected</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-value" id="statAdvice">0</div>
+                            <div class="profile-stat-label">Advice Received</div>
+                        </div>
+                        <div class="profile-stat">
+                            <div class="profile-stat-value" id="statAlerts">0</div>
+                            <div class="profile-stat-label">UV Alerts</div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="action-card" onclick="getAIAdvice()">
-                    <i class="fas fa-robot"></i>
-                    <h4>Get AI Advice</h4>
-                    <p>Detailed personalized protection plan</p>
+                <!-- Quick Actions -->
+                <div class="uv-card-enhanced">
+                    <div class="card-header">
+                        <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    </div>
+
+                    <div class="quick-actions-grid">
+                        <a href="/api/ai/advice" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="action-content">
+                                <h4>Get AI Advice</h4>
+                                <p>Personalized protection plan</p>
+                            </div>
+                        </a>
+
+                        <a href="#" class="action-card" onclick="printPlan()">
+                            <div class="action-icon">
+                                <i class="fas fa-print"></i>
+                            </div>
+                            <div class="action-content">
+                                <h4>Print Plan</h4>
+                                <p>Printable protection guide</p>
+                            </div>
+                        </a>
+
+                        <a href="/profile" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-user-edit"></i>
+                            </div>
+                            <div class="action-content">
+                                <h4>Edit Profile</h4>
+                                <p>Update your information</p>
+                            </div>
+                        </a>
+
+                        <a href="#" class="action-card" onclick="sharePlan()">
+                            <div class="action-icon">
+                                <i class="fas fa-share-alt"></i>
+                            </div>
+                            <div class="action-content">
+                                <h4>Share Plan</h4>
+                                <p>Share with family/friends</p>
+                            </div>
+                        </a>
+                    </div>
                 </div>
 
-                <div class="action-card" onclick="location.href='/history'">
-                    <i class="fas fa-history"></i>
-                    <h4>View History</h4>
-                    <p>See your protection patterns</p>
-                </div>
+                <!-- Daily Tips -->
+                <div class="uv-card-enhanced">
+                    <div class="card-header">
+                        <h3><i class="fas fa-lightbulb"></i> Daily Tips</h3>
+                    </div>
 
-                <div class="action-card" onclick="printPlan()">
-                    <i class="fas fa-print"></i>
-                    <h4>Print Plan</h4>
-                    <p>Printable protection guide</p>
+                    <div class="daily-tips" id="dailyTips">
+                        <!-- Tips will be populated by JavaScript -->
+                    </div>
                 </div>
             </div>
         </div>
@@ -528,78 +829,8 @@
 </div>
 
 <script>
-    // Load dashboard data
-    async function loadDashboardData() {
-        try {
-            const response = await fetch('/api/dashboard');
-            const data = await response.json();
-
-            if (data.success) {
-                updateDashboard(data.data);
-            }
-        } catch (error) {
-            console.error('Failed to load dashboard data:', error);
-        }
-    }
-
-    function updateDashboard(data) {
-        // Update UV data
-        document.getElementById('uvIndex').textContent = data.uv.index;
-        document.getElementById('uvLevel').textContent = data.uv.level;
-
-        // Update UV risk level and description
-        document.getElementById('uvRiskLevel').textContent = data.uv.level + ' Risk';
-        document.getElementById('uvDescription').textContent = data.uv.risk;
-
-        // Update AQI data
-        document.getElementById('aqiValue').textContent = data.airQuality.aqi;
-        document.getElementById('aqiLevel').textContent = data.airQuality.aqiDescription.level;
-        document.getElementById('aqiNumber').textContent = data.airQuality.aqi;
-        document.getElementById('aqiStatus').textContent = data.airQuality.aqiDescription.level;
-        document.getElementById('aqiRecommendation').textContent = data.airQuality.aqiDescription.recommendation;
-
-        // Update AQI circle color
-        document.getElementById('aqiCircle').style.background = `linear-gradient(135deg, ${data.airQuality.aqiDescription.color} 0%, ${lightenColor(data.airQuality.aqiDescription.color, 20)} 100%)`;
-
-        // Update temperature
-        document.getElementById('temperature').textContent = data.weather.temperature + '°C';
-        document.getElementById('feelsLike').textContent = data.weather.feelsLike + '°C';
-
-        // Update protection score
-        document.getElementById('protectionScore').textContent = data.stats.protectionScore + '%';
-
-        // Update greeting based on time
-        setGreeting();
-
-        // Update clothing recommendations
-        if (data.recommendations) {
-            updateClothingRecommendations(data.recommendations);
-        }
-    }
-
-    function updateClothingRecommendations(rec) {
-        // Update each category with first recommendation
-        if (rec.head && rec.head.length > 0) {
-            document.getElementById('headRec').textContent = rec.head[0];
-        }
-        if (rec.upperBody && rec.upperBody.length > 0) {
-            document.getElementById('upperBodyRec').textContent = rec.upperBody[0];
-        }
-        if (rec.lowerBody && rec.lowerBody.length > 0) {
-            document.getElementById('lowerBodyRec').textContent = rec.lowerBody[0];
-        }
-        if (rec.sunscreen && rec.sunscreen.length > 0) {
-            document.getElementById('sunscreenRec').textContent = rec.sunscreen[0];
-        }
-        if (rec.accessories && rec.accessories.length > 0) {
-            document.getElementById('accessoriesRec').textContent = rec.accessories[0];
-        }
-        if (rec.timing && rec.timing.length > 0) {
-            document.getElementById('timingRec').textContent = rec.timing[0];
-        }
-    }
-
-    function setGreeting() {
+    // Update greeting based on time
+    function updateGreeting() {
         const hour = new Date().getHours();
         let greeting = '';
 
@@ -607,58 +838,484 @@
         else if (hour < 18) greeting = 'Good afternoon';
         else greeting = 'Good evening';
 
-        document.getElementById('greetingTime').textContent = `${greeting}! Here's your sun protection overview for today.`;
+        document.getElementById('greeting').textContent = `${greeting}, <%= user.name %>!`;
+    }
+
+    // Load dashboard data
+    async function loadDashboardData() {
+        try {
+            showLoading(true);
+
+            const response = await fetch('/api/dashboard', {
+                credentials: 'include'
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                updateDashboardUI(data.data);
+            } else {
+                console.error('Failed to load dashboard data:', data.message);
+                showError('Failed to load dashboard data. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error loading dashboard:', error);
+            showError('Network error. Please check your connection.');
+        } finally {
+            showLoading(false);
+        }
+    }
+
+    function updateDashboardUI(data) {
+        // Update UV Index
+        if (data.uv) {
+            document.getElementById('uvIndexValue').textContent = data.uv.index;
+            document.getElementById('uvIndexDisplay').textContent = data.uv.index;
+            document.getElementById('uvLevelText').textContent = data.uv.level;
+            document.getElementById('riskBadge').textContent = data.uv.level;
+            document.getElementById('riskBadge').className = `risk-badge ${data.uv.level.toLowerCase().replace(' ', '-')}`;
+            document.getElementById('riskDescription').textContent = data.uv.risk;
+
+            // Update protection tips
+            const tipsContainer = document.getElementById('protectionTips');
+            tipsContainer.innerHTML = '';
+            if (data.uv.protectionAdvice && data.uv.protectionAdvice.length > 0) {
+                data.uv.protectionAdvice.slice(0, 3).forEach(tip => {
+                    const tipElement = document.createElement('div');
+                    tipElement.className = 'tip-item';
+                    tipElement.innerHTML = `
+                        <i class="fas fa-check-circle"></i>
+                        <span>${tip}</span>
+                    `;
+                    tipsContainer.appendChild(tipElement);
+                });
+            }
+        }
+
+        // Update weather
+        if (data.weather) {
+            document.getElementById('temperatureValue').textContent = `${data.weather.temperature}°C`;
+            document.getElementById('temperatureDisplay').textContent = `${data.weather.temperature}°C`;
+            document.getElementById('humidityValue').textContent = `${data.weather.humidity}%`;
+            document.getElementById('windSpeed').textContent = `${data.weather.windSpeed} km/h`;
+        }
+
+        // Update AQI
+        if (data.airQuality) {
+            document.getElementById('aqiValue').textContent = data.airQuality.aqi;
+            document.getElementById('aqiValueDisplay').textContent = data.airQuality.aqi;
+            document.getElementById('aqiLevelDisplay').textContent = data.airQuality.aqiDescription.level;
+            document.getElementById('aqiDescription').textContent = data.airQuality.aqiDescription.description;
+
+            if (data.airQuality.components) {
+                document.getElementById('pm25Value').textContent = data.airQuality.components.pm2_5 || '--';
+                document.getElementById('o3Value').textContent = data.airQuality.components.o3 || '--';
+            }
+        }
+
+        // Update recommendations
+        if (data.recommendations) {
+            updateRecommendations(data.recommendations);
+        }
+
+        // Update stats
+        if (data.stats) {
+            document.getElementById('statDays').textContent = data.stats.daysProtected || 0;
+            document.getElementById('statAdvice').textContent = data.stats.adviceReceived || 0;
+            document.getElementById('statAlerts').textContent = data.stats.uvAlerts || 0;
+            document.getElementById('protectionScore').textContent = data.stats.protectionScore || '--%';
+        }
+
+        // Update daily tips
+        if (data.dailyTips) {
+            updateDailyTips(data.dailyTips);
+        }
+
+        // Update last updated time
+        document.getElementById('uvLastUpdated').textContent = `Updated ${formatTime(new Date())}`;
+    }
+
+    function updateRecommendations(recommendations) {
+        const grid = document.getElementById('recommendationsGrid');
+        grid.innerHTML = '';
+
+        // Create recommendation items for each category
+        const categories = [
+            { key: 'head', icon: 'fas fa-hat-cowboy', title: 'Head Protection' },
+            { key: 'upperBody', icon: 'fas fa-tshirt', title: 'Upper Body' },
+            { key: 'lowerBody', icon: 'fas fa-vest', title: 'Lower Body' },
+            { key: 'sunscreen', icon: 'fas fa-sun', title: 'Sunscreen' },
+            { key: 'accessories', icon: 'fas fa-glasses', title: 'Accessories' },
+            { key: 'timing', icon: 'fas fa-clock', title: 'Timing' }
+        ];
+
+        categories.forEach(category => {
+            if (recommendations[category.key] && recommendations[category.key].length > 0) {
+                const item = document.createElement('div');
+                item.className = 'recommendation-item';
+                item.innerHTML = `
+                    <div class="recommendation-icon">
+                        <i class="${category.icon}"></i>
+                    </div>
+                    <div class="recommendation-content">
+                        <h4>${category.title}</h4>
+                        <p>${recommendations[category.key][0]}</p>
+                    </div>
+                `;
+                grid.appendChild(item);
+            }
+        });
+    }
+
+    function updateDailyTips(tips) {
+        const container = document.getElementById('dailyTips');
+        container.innerHTML = '';
+
+        tips.slice(0, 3).forEach(tip => {
+            const tipElement = document.createElement('div');
+            tipElement.className = 'tip-item';
+            tipElement.innerHTML = `
+                <i class="fas fa-lightbulb"></i>
+                <span>${tip}</span>
+            `;
+            container.appendChild(tipElement);
+        });
+    }
+
+    function formatTime(date) {
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function showLoading(show) {
+        // Implement loading overlay if needed
+    }
+
+    function showError(message) {
+        // Show error message to user
+        alert(message);
     }
 
     function refreshRecommendations() {
         loadDashboardData();
-        showNotification('Recommendations refreshed!', 'success');
-    }
-
-    function getAIAdvice() {
-        window.location.href = '/api/ai/advice';
     }
 
     function printPlan() {
         window.print();
     }
 
-    function showNotification(message, type) {
-        // Simple notification implementation
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-                <span>${message}</span>
-            `;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
+    function sharePlan() {
+        // Implement share functionality
+        alert('Share functionality coming soon!');
     }
 
-    // Helper function to lighten colors
-    function lightenColor(color, percent) {
-        const num = parseInt(color.replace("#", ""), 16);
-        const amt = Math.round(2.55 * percent);
-        const R = (num >> 16) + amt;
-        const G = (num >> 8 & 0x00FF) + amt;
-        const B = (num & 0x0000FF) + amt;
-        return `#${(
-            0x1000000 +
-            (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-            (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-            (B < 255 ? B < 1 ? 0 : B : 255)
-        ).toString(16).slice(1)}`;
-    }
-
-    // Load data on page load
+    // Initialize dashboard
     document.addEventListener('DOMContentLoaded', () => {
+        updateGreeting();
         loadDashboardData();
+
         // Auto-refresh every 30 minutes
         setInterval(loadDashboardData, 30 * 60 * 1000);
+
+        // Setup navigation
+        setupNavigation();
+    });
+
+    // Setup navigation
+    function setupNavigation() {
+        const navLinks = document.getElementById('navLinks');
+        navLinks.innerHTML = `
+            <a href="/dashboard" class="active">Dashboard</a>
+            <a href="/profile">Profile</a>
+            <a href="/ai-advice">AI Advice</a>
+            <div class="user-dropdown">
+                <button class="user-menu-btn">
+                    <i class="fas fa-user-circle"></i>
+                    <span><%= user.name %></span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="dropdown-menu">
+                    <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                    <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                </div>
+            </div>
+        `;
+
+        // Setup dropdown
+        const userMenuBtn = document.querySelector('.user-menu-btn');
+        const dropdownMenu = document.querySelector('.dropdown-menu');
+
+        if (userMenuBtn && dropdownMenu) {
+            userMenuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!userMenuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                    dropdownMenu.classList.remove('show');
+                }
+            });
+
+            // Setup logout
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', async (e) => {
+                    e.preventDefault();
+
+                    try {
+                        const response = await fetch('/api/auth/logout', {
+                            method: 'POST',
+                            credentials: 'include'
+                        });
+
+                        const data = await response.json();
+                        if (data.success) {
+                            localStorage.removeItem('user');
+                            window.location.href = '/';
+                        }
+                    } catch (error) {
+                        console.error('Logout error:', error);
+                    }
+                });
+            }
+        }
+    }
+    // Function to refresh AI recommendations
+    async function refreshAIRecommendations() {
+        const refreshButton = document.querySelector('.refresh-recommendations');
+        if (!refreshButton) return;
+
+        try {
+            // Update button to show loading state
+            refreshButton.innerHTML = `
+            <i class="fas fa-spinner fa-spin"></i> Refreshing...
+        `;
+            refreshButton.disabled = true;
+
+            const response = await fetch('/api/dashboard/refresh-recommendations', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.recommendations) {
+                updateAIRecommendations(data.recommendations);
+                showNotification('AI recommendations refreshed successfully!', 'success');
+            } else {
+                // Handle known error from server
+                const errorMsg = data.message || 'Failed to refresh recommendations.';
+                updateAIRecommendations(null); // Show "unavailable" state
+                showNotification(errorMsg, 'error');
+            }
+        } catch (error) {
+            console.error('Error refreshing AI recommendations:', error);
+            updateAIRecommendations(null);
+            showNotification('Network error. Please check your connection and try again.', 'error');
+        } finally {
+            // Always restore the button state
+            refreshButton.innerHTML = `
+            <i class="fas fa-sync-alt"></i> Refresh Recommendations
+        `;
+            refreshButton.disabled = false;
+        }
+    }
+    // Function to refresh AI recommendations
+    async function refreshAIRecommendations() {
+        const refreshButton = document.querySelector('.refresh-recommendations');
+        if (!refreshButton) return;
+
+        try {
+            // Update button to loading state
+            refreshButton.innerHTML = `
+            <i class="fas fa-spinner fa-spin"></i> Refreshing...
+        `;
+            refreshButton.disabled = true;
+
+            const response = await fetch('/api/dashboard/refresh-recommendations', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.recommendations) {
+                updateAIRecommendations(data.recommendations);
+                showNotification('Recommendations refreshed successfully!', 'success');
+            } else {
+                const errorMsg = data.message || 'Failed to refresh recommendations.';
+                updateAIRecommendations(null);
+                showNotification(errorMsg, 'error');
+            }
+        } catch (error) {
+            console.error('Error refreshing AI recommendations:', error);
+            updateAIRecommendations(null);
+            showNotification('Network error. Please try again.', 'error');
+        } finally {
+            // Restore button
+            refreshButton.innerHTML = `
+            <i class="fas fa-sync-alt"></i> Refresh Recommendations
+        `;
+            refreshButton.disabled = false;
+        }
+    }
+
+    // Function to update AI recommendations in UI
+    function updateAIRecommendations(recommendations) {
+        const container = document.getElementById('aiRecommendations');
+
+        if (!recommendations || Object.keys(recommendations).length === 0) {
+            container.innerHTML = `
+            <div class="error-message" style="text-align: center; padding: 3rem;">
+                <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #f59e0b; margin-bottom: 1rem;"></i>
+                <h3 style="color: #1f2937; margin-bottom: 1rem;">Recommendations Unavailable</h3>
+                <p style="color: #6b7280;">Unable to generate AI recommendations at the moment.</p>
+            </div>
+        `;
+            return;
+        }
+
+        let html = `<div class="recommendations-grid">`;
+
+        // Define categories with icons and titles
+        const categories = [
+            { key: 'headwear', icon: 'fa-hat-cowboy', title: 'Headwear', desc: 'Protect your head and face' },
+            { key: 'upperBody', icon: 'fa-tshirt', title: 'Upper Body', desc: 'Shirts, jackets, and tops' },
+            { key: 'lowerBody', icon: 'fa-vest', title: 'Lower Body', desc: 'Pants, shorts, and skirts' },
+            { key: 'footwear', icon: 'fa-shoe-prints', title: 'Footwear', desc: 'Shoes and socks' },
+            { key: 'accessories', icon: 'fa-glasses', title: 'Accessories', desc: 'Sunglasses, masks, and more' }
+        ];
+
+        categories.forEach(cat => {
+            const items = recommendations[cat.key];
+            const images = recommendations[`${cat.key}Images`];
+
+            if (items && items.length > 0) {
+                html += `
+                <div class="recommendation-category">
+                    <div class="category-header">
+                        <div class="category-icon">
+                            <i class="fas ${cat.icon}"></i>
+                        </div>
+                        <div class="category-title">
+                            <h4>${cat.title}</h4>
+                            <p>${cat.desc}</p>
+                        </div>
+                    </div>
+                    <div class="category-content">
+                        ${items.map(item => `
+                            <div class="recommendation-item">
+                                <i class="fas fa-check item-check"></i>
+                                <span class="item-text">${item}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    ${images && images.length > 0 ? `
+                        <div class="recommendation-images">
+                            ${images.map(img => `
+                                <img src="${img.url}"
+                                     alt="${img.alt || cat.title}"
+                                     class="recommendation-image"
+                                     onclick="openImageModal('${img.url}', '${img.alt || cat.title}', '${img.photographer || 'Unsplash'}')">
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            }
+        });
+
+        html += `</div>`;
+
+        // Overall Advice
+        if (recommendations.overallAdvice) {
+            html += `
+            <div class="overall-advice">
+                <h4><i class="fas fa-lightbulb"></i> Today's Advice</h4>
+                <p>${recommendations.overallAdvice}</p>
+            </div>
+        `;
+        }
+
+        // Special Considerations
+        if (recommendations.specialConsiderations && recommendations.specialConsiderations.length > 0) {
+            html += `
+            <div class="special-considerations">
+                <h4><i class="fas fa-exclamation-triangle"></i> Special Considerations</h4>
+                <ul>
+                    ${recommendations.specialConsiderations.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+        }
+
+        container.innerHTML = html;
+    }
+
+    // Image Modal Functions
+    function openImageModal(url, alt, photographer) {
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+        const caption = document.getElementById('imageCaption');
+
+        modalImage.src = url;
+        modalImage.alt = alt;
+        caption.innerHTML = `${alt}<br><small>Photo by ${photographer} on Unsplash</small>`;
+
+        modal.classList.add('active');
+    }
+
+    function closeImageModal() {
+        const modal = document.getElementById('imageModal');
+        modal.classList.remove('active');
+    }
+
+    // Close modal when clicking outside image
+    document.getElementById('imageModal')?.addEventListener('click', (e) => {
+        if (e.target === document.getElementById('imageModal')) {
+            closeImageModal();
+        }
+    });
+
+    // Simple notification (you can replace with toast library)
+    function showNotification(message, type = 'success') {
+        // Simple alert fallback
+        alert(message);
+
+        // Optional: Create toast notification
+        const toast = document.createElement('div');
+        toast.style.position = 'fixed';
+        toast.style.bottom = '20px';
+        toast.style.right = '20px';
+        toast.style.padding = '1rem 1.5rem';
+        toast.style.borderRadius = '8px';
+        toast.style.color = 'white';
+        toast.style.background = type === 'success' ? '#10b981' : '#ef4444';
+        toast.style.zIndex = '10000';
+        toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        toast.textContent = message;
+
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 4000);
+    }
+
+    // Load initial recommendations on page load (if available)
+    document.addEventListener('DOMContentLoaded', () => {
+        // If recommendations already loaded from server
+        if (window.initialRecommendations) {
+            updateAIRecommendations(window.initialRecommendations);
+        }
     });
 </script>
 </body>

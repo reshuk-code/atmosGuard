@@ -1,4 +1,3 @@
-// backend/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
@@ -9,6 +8,8 @@ require('dotenv').config();
 const authRoutes = require('./routes/authRoutes');
 const aiRoutes = require('./routes/aiRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const { protect } = require('./middleware/auth');
+const User = require('./models/User');  // ← ADD THIS LINE HERE
 
 const app = express();
 
@@ -33,17 +34,47 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 
 // Public Routes
-app.get('/', (req, res) => {
-    res.render('index', {
-        title: 'AtmosGuard - Protect Your Skin',
-        description: 'Personalized UV protection for sensitive skin conditions and skin cancer prevention',
-        features: [
-            'AI-powered sun safety advice',
-            'Personalized for your skin type',
-            'Real-time UV monitoring',
-            'Dermatologist-approved recommendations'
-        ]
-    });
+app.get('/', async (req, res) => {
+    try {
+        const token = req.cookies.jwt;
+
+        if (token) {
+            // Check if user is logged in via cookie
+            const jwt = require('jsonwebtoken');
+            const User = require('./models/User');
+
+            try {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                const user = await User.findById(decoded.id);
+
+                if (user) {
+                    // User is logged in, redirect to dashboard
+                    return res.redirect('/dashboard');
+                }
+            } catch (error) {
+                // Invalid token, show landing page
+                console.log('Invalid token, showing landing page');
+            }
+        }
+
+        // Show landing page for non-logged in users
+        res.render('index', {
+            title: 'AtmosGuard - Protect Your Skin',
+            description: 'Personalized UV protection for sensitive skin conditions and skin cancer prevention',
+            features: [
+                'AI-powered sun safety advice',
+                'Personalized for your skin type',
+                'Real-time UV monitoring',
+                'Dermatologist-approved recommendations'
+            ]
+        });
+    } catch (error) {
+        console.error('Home route error:', error);
+        res.render('index', {
+            title: 'AtmosGuard - Protect Your Skin',
+            description: 'Personalized UV protection for sensitive skin conditions and skin cancer prevention'
+        });
+    }
 });
 
 // Landing page for app
@@ -225,6 +256,7 @@ app.get('/onboarding', async (req, res) => {
         res.redirect('/login');
     }
 });
+app.use('/api/ai/advice', require('./routes/adviceAiRoutes'));
 // MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('MongoDB Connected'))
@@ -232,7 +264,24 @@ mongoose.connect(process.env.MONGO_URI)
         console.error('MongoDB connection error:', err);
         process.exit(1);
     });
+app.get('/ai-advice', protect, async (req, res) => {
+    try {
+        // Fetch user data to pass to EJS (so AI can greet by name, show profile info)
+        const user = await User.findById(req.user.id).select('name skinType age skinCondition hasSkinCancerHistory preferredLocation');
 
+        if (!user) {
+            return res.redirect('/login');
+        }
+
+        res.render('ai-advice', {
+            user: user.toObject(), // Convert to plain object for EJS
+            pageTitle: 'AI Advice - AtmosGuard'
+        });
+    } catch (error) {
+        console.error('Error loading AI Advice page:', error);
+        res.status(500).send('Server Error');
+    }
+});
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

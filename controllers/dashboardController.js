@@ -1,23 +1,305 @@
 const User = require('../models/User');
-const weatherService = require('../services/weatherService');
+const weatherService = require('../services/weatherService'); // adjust path if needed
+const axios = require('axios');
 
-// Get dashboard data with real weather
+// Helper: Skin type description
+function getSkinTypeDescription(skinType) {
+    const descriptions = {
+        'I': 'Very fair - always burns, never tans',
+        'II': 'Fair - usually burns, tans minimally',
+        'III': 'Medium - sometimes burns, gradually tans',
+        'IV': 'Olive - rarely burns, tans easily',
+        'V': 'Brown - very rarely burns, tans very easily',
+        'VI': 'Dark - never burns, deeply pigmented'
+    };
+    return descriptions[skinType] || 'Not specified';
+}
+
+// Helper: Get AI clothing recommendations
+async function getClothingRecommendations(user, weatherData, uvData, aqiData) {
+    try {
+        const prompt = `
+You are a fashion and health expert for AtmosGuard, an app that provides personalized clothing recommendations based on weather conditions, UV index, and air quality.
+
+User Profile:
+- Skin Type: ${user.skinType} (${getSkinTypeDescription(user.skinType)})
+- Skin Condition: ${user.skinCondition || 'Not specified'}
+- Age: ${user.age || 'Not specified'} years
+- Skin Cancer History: ${user.hasSkinCancerHistory ? 'Yes' : 'No'}
+
+Current Conditions:
+- UV Index: ${uvData.index} (${uvData.level})
+- Air Quality Index: ${aqiData.aqi} (${aqiData.aqiDescription.level})
+- Temperature: ${weatherData.temperature}°C
+- Weather: ${weatherData.condition}
+- Humidity: ${weatherData.humidity}%
+- Wind Speed: ${weatherData.windSpeed} km/h
+
+Please provide specific clothing recommendations for today including:
+1. HEADWEAR (hats, caps, etc.)
+2. UPPER BODY (shirts, jackets, etc.)
+3. LOWER BODY (pants, shorts, skirts, etc.)
+4. FOOTWEAR (shoes, socks, etc.)
+5. ACCESSORIES (sunglasses, gloves, scarves, etc.)
+6. SPECIAL CONSIDERATIONS (for skin conditions, cancer history, etc.)
+
+Format your response as a JSON object with the following structure:
+{
+    "headwear": ["item1", "item2"],
+    "upperBody": ["item1", "item2"],
+    "lowerBody": ["item1", "item2"],
+    "footwear": ["item1", "item2"],
+    "accessories": ["item1", "item2"],
+    "specialConsiderations": ["consideration1", "consideration2"],
+    "overallAdvice": "Brief overall advice for today"
+}
+
+Return ONLY the JSON object, no other text.
+`;
+
+        const response = await axios.post(
+            `${process.env.OPENROUTER_BASE_URL}/chat/completions`,
+            {
+                model: "openrouter/openchat-3.5-16k",
+                messages: [
+                    { role: "system", content: "You are a fashion and health expert. Return ONLY valid JSON." },
+                    { role: "user", content: prompt }
+                ],
+                temperature: 0.7,
+                max_tokens: 800
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                    "HTTP-Referer": "https://atmosguard.vercel.app",
+                    "X-Title": "AtmosGuard",
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        const aiResponse = response.data.choices[0].message.content.trim();
+        const recommendations = JSON.parse(aiResponse);
+
+        // Add images
+        const recommendationsWithImages = await getImagesForRecommendations(recommendations);
+        return recommendationsWithImages;
+
+    } catch (error) {
+        console.error('AI clothing recommendation error:', error.response?.data || error.message);
+        return getFallbackRecommendations(uvData, aqiData);
+    }
+}
+
+// Helper: Unsplash images with fallback queries
+async function getImagesForRecommendations(recommendations) {
+    const unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
+
+    if (!unsplashAccessKey) {
+        return addPlaceholderImages(recommendations);
+    }
+
+    try {
+        const imagePromises = [];
+        const categories = ['headwear', 'upperBody', 'lowerBody', 'footwear', 'accessories'];
+
+        // Define fallback queries for better results
+        const fallbackQueries = {
+            headwear: ['wide brim sun hat', 'bucket hat', 'sun protection hat', 'cap with neck flap'],
+            upperBody: ['long sleeve shirt', 'UPF shirt', 'lightweight jacket', 'rash guard'],
+            lowerBody: ['long pants', 'lightweight trousers', 'capri pants', 'maxi skirt'],
+            footwear: ['comfortable walking shoes', 'breathable sneakers', 'closed toe sandals'],
+            accessories: ['UV sunglasses', 'neck gaiter', 'face mask', 'sun gloves', 'scarf']
+        };
+
+        for (const category of categories) {
+            if (recommendations[category]?.length > 0) {
+                const firstItem = recommendations[category][0].toLowerCase();
+
+                // Primary search
+                let searchQuery = firstItem;
+                if (firstItem.includes('hat')) searchQuery = 'sun hat';
+                else if (firstItem.includes('shirt')) searchQuery = 'long sleeve shirt';
+                else if (firstItem.includes('pant')) searchQuery = 'lightweight pants';
+                else if (firstItem.includes('shoe')) searchQuery = 'comfortable walking shoes';
+                else if (firstItem.includes('sunglass') || firstItem.includes('glasses')) searchQuery = 'sunglasses';
+                else if (firstItem.includes('mask')) searchQuery = 'face mask';
+                else if (firstItem.includes('gaiter') || firstItem.includes('scarf')) searchQuery = 'neck gaiter';
+
+                imagePromises.push(
+                    fetchImageWithFallbacks(searchQuery, fallbackQueries[category])
+                );
+            } else {
+                imagePromises.push(null);
+            }
+        }
+
+        const responses = await Promise.allSettled(imagePromises.filter(p => p));
+
+        let idx = 0;
+        for (const category of categories) {
+            if (recommendations[category]?.length > 0) {
+                const res = responses[idx];
+                if (res?.status === 'fulfilled' && res.value) {
+                    recommendations[`${category}Images`] = [res.value];
+                } else {
+                    recommendations[`${category}Images`] = [getPlaceholderImage(category)];
+                }
+                idx++;
+            }
+        }
+
+        return recommendations;
+    } catch (error) {
+        console.error('Unsplash API error:', error);
+        return addPlaceholderImages(recommendations);
+    }
+}
+
+// New helper: Try multiple search terms until one works
+async function fetchImageWithFallbacks(primaryQuery, fallbackQueries = []) {
+    const queries = [primaryQuery, ...fallbackQueries];
+    const unsplashAccessKey = process.env.UNSPLASH_ACCESS_KEY;
+
+    for (const query of queries) {
+        try {
+            const response = await axios.get(
+                `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=1&orientation=squarish`,
+                {
+                    headers: { 'Authorization': `Client-ID ${unsplashAccessKey}` },
+                    timeout: 5000
+                }
+            );
+
+            if (response.data.results && response.data.results.length > 0) {
+                const photo = response.data.results[0];
+                return {
+                    url: photo.urls.small,
+                    alt: photo.alt_description || query,
+                    photographer: photo.user.name,
+                    unsplashUrl: photo.links.html
+                };
+            }
+        } catch (err) {
+            // Continue to next query
+            console.log(`Query failed: "${query}", trying next...`);
+        }
+    }
+
+    // If all fail, return a reliable generic placeholder from Unsplash
+    const genericPlaceholders = {
+        headwear: 'https://images.unsplash.com/photo-1593478606872-6e18a2d2e7da?w=400&h=400&fit=crop',
+        upperBody: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=400&fit=crop',
+        lowerBody: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=400&h=400&fit=crop',
+        footwear: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop',
+        accessories: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&h=400&fit=crop'
+    };
+
+    const category = Object.keys(genericPlaceholders).find(cat => primaryQuery.includes(cat)) || 'accessories';
+
+    return {
+        url: genericPlaceholders[category],
+        alt: `Recommended ${category} item`,
+        photographer: 'Unsplash'
+    };
+}
+
+// Helper: Placeholder images
+function addPlaceholderImages(recommendations) {
+    const categories = ['headwear', 'upperBody', 'lowerBody', 'footwear', 'accessories'];
+    categories.forEach(category => {
+        if (recommendations[category]?.length > 0) {
+            recommendations[`${category}Images`] = [getPlaceholderImage(category)];
+        }
+    });
+    return recommendations;
+}
+
+function getPlaceholderImage(category) {
+    const placeholders = {
+        headwear: { url: 'https://images.unsplash.com/photo-1678721938524-1a3ee398de2a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D', alt: 'Sun hat', photographer: 'Placeholder' },
+        upperBody: { url: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&h=400&fit=crop', alt: 'Long sleeve shirt', photographer: 'Placeholder' },
+        lowerBody: { url: 'https://images.unsplash.com/photo-1544441893-675973e31985?w=400&h=400&fit=crop', alt: 'Lightweight pants', photographer: 'Placeholder' },
+        footwear: { url: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&h=400&fit=crop', alt: 'Comfortable shoes', photographer: 'Placeholder' },
+        accessories: { url: 'https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400&h=400&fit=crop', alt: 'Sunglasses', photographer: 'Placeholder' }
+    };
+    return placeholders[category] || { url: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w==400&h=400&fit=crop', alt: 'Clothing', photographer: 'Placeholder' };
+}
+
+// Helper: Fallback recommendations
+function getFallbackRecommendations(uvData, aqiData) {
+    const uvIndex = parseFloat(uvData.index);
+    const aqi = aqiData.aqi;
+
+    const rec = {
+        headwear: [], upperBody: [], lowerBody: [], footwear: [], accessories: [],
+        specialConsiderations: [], overallAdvice: ''
+    };
+
+    // UV logic
+    if (uvIndex > 7) {
+        rec.headwear.push("Wide-brimmed hat (3+ inch brim)", "Bucket hat with neck flap");
+        rec.upperBody.push("UPF 50+ long-sleeve shirt");
+        rec.lowerBody.push("Lightweight long pants");
+        rec.accessories.push("UV-blocking sunglasses (100% protection)", "Neck gaiter or scarf");
+        rec.overallAdvice = "Extreme UV levels today. Maximum protection required.";
+    } else if (uvIndex > 5) {
+        rec.headwear.push("Baseball cap with neck flap");
+        rec.upperBody.push("Long-sleeve shirt (tight weave)");
+        rec.lowerBody.push("Knee-length pants or skirt");
+        rec.accessories.push("Sunglasses with UV protection");
+        rec.overallAdvice = "High UV levels. Good protection needed.";
+    } else if (uvIndex > 3) {
+        rec.headwear.push("Baseball cap or visor");
+        rec.upperBody.push("Short-sleeve shirt with collar");
+        rec.lowerBody.push("Shorts or short skirt are okay");
+        rec.accessories.push("Sunglasses recommended");
+        rec.overallAdvice = "Moderate UV levels. Some protection needed.";
+    } else {
+        rec.headwear.push("Any hat for style");
+        rec.upperBody.push("Comfortable short-sleeve top");
+        rec.lowerBody.push("Shorts or pants as preferred");
+        rec.overallAdvice = "Low UV levels. Minimal protection needed.";
+    }
+
+    // AQI logic
+    if (aqi > 150) {
+        rec.accessories.push("N95 mask or respirator");
+        rec.upperBody.push("Long sleeves to cover skin");
+        rec.specialConsiderations.push("Poor air quality - limit outdoor time");
+        rec.overallAdvice += " Poor air quality - consider staying indoors.";
+    } else if (aqi > 100) {
+        rec.accessories.push("Surgical mask if sensitive");
+        rec.specialConsiderations.push("Moderate air quality - sensitive individuals take care");
+    }
+
+    // Footwear
+    rec.footwear.push("Comfortable walking shoes", "Breathable socks");
+
+    return addPlaceholderImages(rec);
+}
+
+// Dummy function if not defined elsewhere
+function generatePersonalizedTips(user, weatherData) {
+    return ["Stay hydrated", "Reapply sunscreen every 2 hours"];
+}
+
+// Main: Get dashboard data
 const getDashboardData = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({ success: false, message: 'User not found' });
 
-        if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: 'User not found'
-            });
-        }
+        let weatherData = {
+            weather: { temperature: 25, condition: 'Clear', humidity: 60, windSpeed: 10 },
+            uv: { index: '6', level: 'High', color: '#f97316', risk: 'High risk' },
+            airQuality: { aqi: 80, aqiDescription: { level: 'Moderate' } },
+            fetched: false
+        };
 
-        let weatherData = null;
         let locationName = user.preferredLocation?.name || "Unknown Location";
         let fetched = false;
 
-        // Get real weather data if location is set
         if (user.preferredLocation?.lat && user.preferredLocation?.lon) {
             try {
                 weatherData = await weatherService.getCompleteWeatherData(
@@ -25,62 +307,26 @@ const getDashboardData = async (req, res) => {
                     user.preferredLocation.lon
                 );
                 fetched = weatherData.fetched;
-
-                // FIX: Handle the case where uvi might be undefined or not a number
-                let uvIndex = 0;
-                if (weatherData.uv && typeof weatherData.uv.index === 'number') {
-                    uvIndex = parseFloat(weatherData.uv.index);
-                } else if (weatherData.weather && typeof weatherData.weather.uvi === 'number') {
-                    uvIndex = weatherData.weather.uvi;
-                }
-
-                // Make sure uvIndex is a valid number
-                if (isNaN(uvIndex)) {
-                    uvIndex = 0;
-                }
-
-            } catch (weatherError) {
-                console.error('Weather data fetch error:', weatherError);
-                // Fallback to simulated data
-                weatherData = {
-                    weather: {
-                        temperature: Math.floor(Math.random() * 15) + 20,
-                        feelsLike: Math.floor(Math.random() * 15) + 18,
-                        humidity: Math.floor(Math.random() * 40) + 40,
-                        pressure: Math.floor(Math.random() * 30) + 980,
-                        windSpeed: Math.floor(Math.random() * 20) + 5,
-                        condition: ['Clear', 'Clouds', 'Rain'][Math.floor(Math.random() * 3)],
-                        description: ['clear sky', 'few clouds', 'light rain'][Math.floor(Math.random() * 3)],
-                        icon: '01d',
-                        sunrise: new Date(Date.now() + 6 * 60 * 60 * 1000),
-                        sunset: new Date(Date.now() + 18 * 60 * 60 * 1000),
-                        clouds: 20,
-                        visibility: '10 km'
-                    },
-                    uv: {
-                        index: '5.2',
-                        level: 'Moderate',
-                        color: '#f59e0b',
-                        risk: 'Moderate risk of harm',
-                        protectionAdvice: [
-                            'Stay in shade near midday',
-                            'Wear protective clothing',
-                            'Apply sunscreen SPF 30+ every 2 hours'
-                        ]
-                    },
-                    airQuality: weatherService.getMockAirQualityData(),
-                    fetched: false
-                };
+            } catch (err) {
+                console.error('Weather fetch failed, using fallback');
             }
         }
 
-        // Generate personalized tips
-        const personalizedTips = generatePersonalizedTips(user, weatherData);
+        let aiRecommendations = null;
+        try {
+            aiRecommendations = await getClothingRecommendations(
+                user,
+                weatherData.weather,
+                weatherData.uv,
+                weatherData.airQuality
+            );
+        } catch (err) {
+            aiRecommendations = getFallbackRecommendations(weatherData.uv, weatherData.airQuality);
+        }
 
-        // Calculate days since account creation
+        const personalizedTips = generatePersonalizedTips(user, weatherData);
         const createdAt = new Date(user.createdAt);
-        const today = new Date();
-        const daysSinceCreation = Math.floor((today - createdAt) / (1000 * 60 * 60 * 24));
+        const daysSinceCreation = Math.floor((new Date() - createdAt) / (1000 * 60 * 60 * 24));
 
         res.json({
             success: true,
@@ -100,11 +346,9 @@ const getDashboardData = async (req, res) => {
                 weather: weatherData.weather,
                 uv: weatherData.uv,
                 airQuality: weatherData.airQuality,
+                aiRecommendations,
                 location: locationName,
-                locationCoords: user.preferredLocation ? {
-                    lat: user.preferredLocation.lat,
-                    lon: user.preferredLocation.lon
-                } : null,
+                locationCoords: user.preferredLocation ? { lat: user.preferredLocation.lat, lon: user.preferredLocation.lon } : null,
                 dailyTips: personalizedTips,
                 stats: {
                     daysProtected: Math.min(daysSinceCreation, Math.floor(Math.random() * 30) + 10),
@@ -114,34 +358,10 @@ const getDashboardData = async (req, res) => {
                     streak: Math.floor(Math.random() * 7) + 1
                 },
                 recentActivities: [
-                    {
-                        id: 1,
-                        type: 'uv_alert',
-                        message: `UV Index is ${weatherData.uv.index} (${weatherData.uv.level})`,
-                        time: 'Today',
-                        icon: 'fa-sun'
-                    },
-                    {
-                        id: 2,
-                        type: 'aqi_alert',
-                        message: `Air Quality: ${weatherData.airQuality.aqiDescription.level}`,
-                        time: 'Today',
-                        icon: 'fa-wind'
-                    },
-                    {
-                        id: 3,
-                        type: 'profile',
-                        message: 'Profile setup completed',
-                        time: user.onboardingCompleted ? new Date().toLocaleDateString() : 'Pending',
-                        icon: 'fa-user-check'
-                    },
-                    {
-                        id: 4,
-                        type: 'weather',
-                        message: `Temperature: ${weatherData.weather.temperature}°C`,
-                        time: 'Updated just now',
-                        icon: 'fa-thermometer-half'
-                    }
+                    { id: 1, type: 'uv_alert', message: `UV Index is ${weatherData.uv.index} (${weatherData.uv.level})`, time: 'Today', icon: 'fa-sun' },
+                    { id: 2, type: 'aqi_alert', message: `Air Quality: ${weatherData.airQuality.aqiDescription.level}`, time: 'Today', icon: 'fa-wind' },
+                    { id: 3, type: 'ai_recommendation', message: 'AI clothing recommendations generated', time: 'Today', icon: 'fa-robot' },
+                    { id: 4, type: 'weather', message: `Temperature: ${weatherData.weather.temperature}°C`, time: 'Updated just now', icon: 'fa-thermometer-half' }
                 ],
                 dataFetched: fetched,
                 lastUpdated: new Date()
@@ -158,234 +378,36 @@ const getDashboardData = async (req, res) => {
     }
 };
 
-// Generate personalized tips based on user profile and weather
-function generatePersonalizedTips(user, weatherData) {
-    const tips = [];
-
-    // UV protection tips based on skin type
-    if (user.skinType === 'I' || user.skinType === 'II') {
-        tips.push("Your fair skin (Type " + user.skinType + ") is highly sensitive to UV rays. Use SPF 50+ sunscreen daily.");
-    } else if (user.skinType === 'V' || user.skinType === 'VI') {
-        tips.push("While your darker skin (Type " + user.skinType + ") has natural protection, UV rays still cause damage. Use SPF 30+.");
-    } else if (user.skinType) {
-        tips.push("Your skin type " + user.skinType + " requires regular sun protection. Apply sunscreen every 2 hours when outdoors.");
-    }
-
-    // Age-based tips
-    if (user.age) {
-        if (user.age < 18) {
-            tips.push("Children's skin is more sensitive. Ensure proper sun protection during outdoor activities.");
-        } else if (user.age > 60) {
-            tips.push("Mature skin needs extra hydration alongside sun protection.");
-        } else if (user.age >= 18 && user.age <= 30) {
-            tips.push("Your skin is in its prime protection years. Establishing good habits now prevents future damage.");
-        }
-    }
-
-    // Skin condition specific tips
-    if (user.skinCondition === 'eczema' || user.skinCondition === 'psoriasis') {
-        tips.push("Choose mineral-based sunscreens (zinc oxide/titanium dioxide) to avoid irritating sensitive skin.");
-    }
-
-    if (user.skinCondition === 'lupus') {
-        tips.push("Lupus requires maximum sun protection. Wear UPF 50+ clothing and broad-spectrum sunscreen.");
-    }
-
-    if (user.skinCondition === 'vitiligo') {
-        tips.push("Protect depigmented areas with high SPF sunscreen and consider wearing protective clothing.");
-    }
-
-    if (user.hasSkinCancerHistory) {
-        tips.push("Due to your skin cancer history, regular skin checks are crucial. Consult a dermatologist annually.");
-        tips.push("Use maximum protection: SPF 50+, UPF clothing, and avoid peak sun hours.");
-    }
-
-    // UV index based tips
-    const uvIndex = parseFloat(weatherData.uv.index);
-    if (uvIndex > 7) {
-        tips.push("High UV levels detected. Limit outdoor activities between 10 AM and 4 PM.");
-    } else if (uvIndex > 5) {
-        tips.push("Moderate UV levels. Wear protective clothing and apply sunscreen.");
-    }
-
-    // AQI based tips
-    if (weatherData.airQuality.aqi >= 4) {
-        tips.push("Poor air quality may affect respiratory health. Consider limiting outdoor exercise.");
-    }
-
-    // Weather based tips
-    if (weatherData.weather.humidity > 70) {
-        tips.push("High humidity can make sunscreen less effective. Reapply more frequently.");
-    }
-
-    // Default tip if none generated
-    if (tips.length === 0) {
-        tips.push("Remember to apply sunscreen 15 minutes before going outside and reapply every 2 hours.");
-        tips.push("Wear protective clothing, a wide-brimmed hat, and UV-blocking sunglasses.");
-    }
-
-    return tips.slice(0, 5); // Return max 5 tips
-}
-
-// Complete onboarding
-const completeOnboarding = async (req, res) => {
+// Refresh recommendations endpoint
+const refreshAIRecommendations = async (req, res) => {
     try {
-        const { skinType, skinCondition, hasSkinCancerHistory, age, location } = req.body;
-
-        // Validate required fields
-        if (!skinType || !skinCondition || !age) {
-            return res.status(400).json({
-                success: false,
-                message: 'Please fill in all required fields'
-            });
+        const user = await User.findById(req.user.id);
+        if (!user.preferredLocation?.lat || !user.preferredLocation?.lon) {
+            return res.status(400).json({ success: false, message: "Location not set" });
         }
 
-        // Validate age
-        if (age < 1 || age > 120) {
-            return res.status(400).json({
-                success: false,
-                message: 'Please enter a valid age (1-120)'
-            });
-        }
-
-        const updateData = {
-            skinType,
-            skinCondition,
-            hasSkinCancerHistory: hasSkinCancerHistory === 'true',
-            age: parseInt(age),
-            onboardingCompleted: true,
-            updatedAt: new Date()
-        };
-
-        if (location && location.name && location.lat && location.lon) {
-            updateData.preferredLocation = {
-                name: location.name,
-                lat: parseFloat(location.lat),
-                lon: parseFloat(location.lon)
-            };
-        }
-
-        const user = await User.findByIdAndUpdate(
-            req.user.id,
-            updateData,
-            { new: true, runValidators: true }
+        const weatherData = await weatherService.getCompleteWeatherData(
+            user.preferredLocation.lat,
+            user.preferredLocation.lon
         );
 
-        // Update user in session/localStorage
-        res.json({
-            success: true,
-            message: 'Onboarding completed successfully',
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                age: user.age,
-                skinType: user.skinType,
-                skinCondition: user.skinCondition,
-                hasSkinCancerHistory: user.hasSkinCancerHistory,
-                preferredLocation: user.preferredLocation,
-                onboardingCompleted: user.onboardingCompleted,
-                createdAt: user.createdAt
-            }
-        });
+        const aiRecommendations = await getClothingRecommendations(
+            user,
+            weatherData.weather,
+            weatherData.uv,
+            weatherData.airQuality
+        );
+
+        res.json({ success: true, recommendations: aiRecommendations });
 
     } catch (error) {
-        console.error('Onboarding error:', error);
-
-        // Handle validation errors
-        if (error.name === 'ValidationError') {
-            return res.status(400).json({
-                success: false,
-                message: Object.values(error.errors).map(err => err.message).join(', ')
-            });
-        }
-
-        res.status(500).json({
-            success: false,
-            message: 'Server error during onboarding',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
+        console.error('Refresh recommendations error:', error);
+        res.status(500).json({ success: false, message: 'Failed to refresh recommendations' });
     }
 };
 
-// Update user profile
-const updateProfile = async (req, res) => {
-    try {
-        const { name, skinType, skinCondition, hasSkinCancerHistory, age, location } = req.body;
-
-        const updateData = { updatedAt: new Date() };
-
-        // Validate and add fields if provided
-        if (name) updateData.name = name.trim();
-        if (skinType) updateData.skinType = skinType;
-        if (skinCondition) updateData.skinCondition = skinCondition;
-        if (hasSkinCancerHistory !== undefined) updateData.hasSkinCancerHistory = hasSkinCancerHistory === 'true';
-        if (age !== undefined) {
-            const ageNum = parseInt(age);
-            if (ageNum < 1 || ageNum > 120) {
-                return res.status(400).json({
-                    success: false,
-                    message: 'Please enter a valid age (1-120)'
-                });
-            }
-            updateData.age = ageNum;
-        }
-
-        // Handle location update
-        if (location) {
-            if (location.name && location.lat && location.lon) {
-                updateData.preferredLocation = {
-                    name: location.name,
-                    lat: parseFloat(location.lat),
-                    lon: parseFloat(location.lon)
-                };
-            } else if (location === 'clear') {
-                updateData.preferredLocation = null;
-            }
-        }
-
-        const user = await User.findByIdAndUpdate(
-            req.user.id,
-            updateData,
-            { new: true, runValidators: true }
-        );
-
-        res.json({
-            success: true,
-            message: 'Profile updated successfully',
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                age: user.age,
-                skinType: user.skinType,
-                skinCondition: user.skinCondition,
-                hasSkinCancerHistory: user.hasSkinCancerHistory,
-                preferredLocation: user.preferredLocation,
-                onboardingCompleted: user.onboardingCompleted
-            }
-        });
-
-    } catch (error) {
-        console.error('Profile update error:', error);
-
-        if (error.name === 'ValidationError') {
-            return res.status(400).json({
-                success: false,
-                message: Object.values(error.errors).map(err => err.message).join(', ')
-            });
-        }
-
-        res.status(500).json({
-            success: false,
-            message: 'Server error updating profile',
-            error: process.env.NODE_ENV === 'development' ? error.message : undefined
-        });
-    }
-};
-
+// === ONLY ONE EXPORT ===
 module.exports = {
     getDashboardData,
-    completeOnboarding,
-    updateProfile
+    refreshAIRecommendations,
 };

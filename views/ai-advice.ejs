@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Advisor - AtmosGuard</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: rgba(30, 41, 59, 0.95);
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --user-bubble: #6366f1;
+            --ai-bubble: #1e293b;
+            --border: rgba(255, 255, 255, 0.12);
+            --success: #10b981;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-container {
+            flex: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        .chat-header {
+            text-align: center;
+            padding: 2.5rem 1.5rem;
+            background: linear-gradient(135deg, var(--primary), #7c3aed);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .chat-header h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            margin: 0 0 0.8rem;
+            background: linear-gradient(to right, #fff, #ddd6fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .chat-header p {
+            font-size: 1.15rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto 1.5rem;
+        }
+
+        .profile-summary {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+        }
+
+        .profile-summary strong {
+            color: var(--primary-light);
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            background: var(--card);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .message {
+            max-width: 82%;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message-bubble {
+            padding: 1.2rem 1.8rem;
+            border-radius: 24px;
+            line-height: 1.7;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+            word-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+            background: var(--user-bubble);
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        .message.ai .message-bubble {
+            background: var(--ai-bubble);
+            color: var(--text);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 6px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 10px;
+            padding: 1rem 1.5rem;
+        }
+
+        .typing-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); opacity: 0.5; }
+            50% { transform: translateY(-12px); opacity:  1; }
+        }
+
+        .input-area {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--card);
+            border-radius: 24px;
+            border: 1px solid var(--border);
+            backdrop-filter: blur(12px);
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 1.2rem 1.8rem;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 50px;
+            color: var(--text);
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        #messageInput:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 25px rgba(99, 102, 241, 0.4);
+        }
+
+        #sendButton {
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.4s;
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        #sendButton:hover {
+            background: #7c3aed;
+            transform: scale(1.12);
+            box-shadow: 0 15px 35px rgba(99, 102, 241, 0.6);
+        }
+
+        #sendButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quick-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+            border: 1px solid var(--border);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .action-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .action-btn i {
+            font-size: 1.1rem;
+        }
+    </style>
+</head>
+<body>
+<div class="chat-container">
+    <div class="chat-header">
+        <h1><i class="fas fa-robot"></i> Your Personal AI Sun Advisor</h1>
+        <p>Ask me anything — I know your skin type, history, and today's conditions in <strong><%= user.preferredLocation?.name || 'your area' %></strong>.</p>
+
+        <div class="profile-summary">
+            <strong><%= user.name %></strong> · Skin Type <%= user.skinType || 'Unknown' %>
+            · <%= user.hasSkinCancerHistory ? 'History of skin cancer' : 'No cancer history' %>
+            · <%= user.skinCondition ? user.skinCondition : 'No skin condition' %>
+        </div>
+
+        <div class="quick-actions">
+            <button class="action-btn" onclick="suggestTodayPlan()">
+                <i class="fas fa-sun"></i> Today's Protection Plan
+            </button>
+            <button class="action-btn" onclick="shareAdvice()">
+                <i class="fas fa-share-alt"></i> Share Advice
+            </button>
+        </div>
+    </div>
+
+    <div class="messages" id="messages">
+        <div class="message ai">
+            <div class="message-bubble">
+                Hello <%= user.name %>! 👋<br><br>
+                I'm your personal sun protection advisor. I know you have <strong>skin type <%= user.skinType || 'unknown' %></strong>
+                <%= user.hasSkinCancerHistory ? ' and a history of skin cancer' : '' %>.<br><br>
+                How can I help you stay safe in the sun today?
+            </div>
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="messageInput" placeholder="Ask about sunscreen, clothing, timing, or anything..." autocomplete="off">
+        <button id="sendButton"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<script>
+    const messagesDiv = document.getElementById('messages');
+    const input = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+
+    function scrollToBottom() {
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    function addMessage(content, sender = 'user') {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+        messageDiv.innerHTML = `<div class="message-bubble">${content}</div>`;
+        messagesDiv.appendChild(messageDiv);
+        scrollToBottom();
+    }
+
+    function showTyping() {
+        const typing = document.createElement('div');
+        typing.className = 'message ai';
+        typing.id = 'typing';
+        typing.innerHTML = `
+                <div class="message-bubble">
+                    <div class="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+        messagesDiv.appendChild(typing);
+        scrollToBottom();
+    }
+
+    function removeTyping() {
+        const typing = document.getElementById('typing');
+        if (typing) typing.remove();
+    }
+
+    async function sendMessage(userText = null) {
+        const message = userText || input.value.trim();
+        if (!message) return;
+
+        if (!userText) {
+            addMessage(message, 'user');
+            input.value = '';
+        }
+        sendButton.disabled = true;
+        showTyping();
+
+        try {
+            const response = await fetch('/api/ai/advice/chat', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            });
+
+            if (!response.ok) throw new Error('Network error');
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let aiResponse = '';
+
+            removeTyping();
+            const aiMessageDiv = document.createElement('div');
+            aiMessageDiv.className = 'message ai';
+            aiMessageDiv.innerHTML = '<div class="message-bubble"></div>';
+            messagesDiv.appendChild(aiMessageDiv);
+            const bubble = aiMessageDiv.querySelector('.message-bubble');
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value);
+                const lines = chunk.split('\n');
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6);
+                        if (data === '[DONE]' || !data.trim()) continue;
+                        try {
+                            const json = JSON.parse(data);
+                            const content = json.choices?.[0]?.delta?.content || '';
+                            aiResponse += content;
+                            bubble.innerHTML = aiResponse.replace(/\n/g, '<br>');
+                        } catch (e) {}
+                    }
+                }
+                scrollToBottom();
+            }
+        } catch (error) {
+            removeTyping();
+            addMessage('Sorry, I’m having trouble connecting right now. Please try again.', 'ai');
+            console.error('Chat error:', error);
+        } finally {
+            sendButton.disabled = false;
+            if (!userText) input.focus();
+        }
+    }
+
+    // Quick action: Ask for today's plan
+    function suggestTodayPlan() {
+        sendMessage("Give me a complete sun protection plan for today based on my profile and current conditions.");
+    }
+
+    // Quick action: Share advice
+    function shareAdvice() {
+        const plan = "Here's my personalized sun protection advice from AtmosGuard AI:\n\n" +
+            "I have skin type <%= user.skinType %>, <%= user.hasSkinCancerHistory ? 'with a history of skin cancer' : 'no history of skin cancer' %>.\n" +
+            "Today's UV is high — the AI recommends maximum protection.\n\n" +
+            "Chat with my AI advisor: https://atmosguard.vercel.app/ai-advice";
+
+        if (navigator.share) {
+            navigator.share({
+                title: 'My AtmosGuard Sun Protection Advice',
+                text: plan,
+                url: window.location.href
+            });
+        } else {
+            navigator.clipboard.writeText(plan + "\n\n" + window.location.href);
+            alert('Protection plan copied to clipboard! Share it with friends or family.');
+        }
+    }
+
+    // Event listeners
+    sendButton.addEventListener('click', () => sendMessage());
+    input.addEventListener('keypress', e => {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    scrollToBottom();
+    input.focus();
+</script>
+</body>
+</html>
