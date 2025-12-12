@@ -405,9 +405,89 @@ const refreshAIRecommendations = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to refresh recommendations' });
     }
 };
+const completeOnboarding = async (req, res) => {
+    try {
+        const { skinType, skinCondition, hasSkinCancerHistory, age, location } = req.body;
+
+        // Validate required fields
+        if (!skinType || !skinCondition || !age) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please fill in all required fields'
+            });
+        }
+
+        // Validate age
+        if (age < 1 || age > 120) {
+            return res.status(400).json({
+                success: false,
+                message: 'Please enter a valid age (1-120)'
+            });
+        }
+
+        const updateData = {
+            skinType,
+            skinCondition,
+            hasSkinCancerHistory: hasSkinCancerHistory === 'true',
+            age: parseInt(age),
+            onboardingCompleted: true,
+            updatedAt: new Date()
+        };
+
+        if (location && location.name && location.lat && location.lon) {
+            updateData.preferredLocation = {
+                name: location.name,
+                lat: parseFloat(location.lat),
+                lon: parseFloat(location.lon)
+            };
+        }
+
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            updateData,
+            { new: true, runValidators: true }
+        );
+
+        // Update user in session/localStorage
+        res.json({
+            success: true,
+            message: 'Onboarding completed successfully',
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                age: user.age,
+                skinType: user.skinType,
+                skinCondition: user.skinCondition,
+                hasSkinCancerHistory: user.hasSkinCancerHistory,
+                preferredLocation: user.preferredLocation,
+                onboardingCompleted: user.onboardingCompleted,
+                createdAt: user.createdAt
+            }
+        });
+
+    } catch (error) {
+        console.error('Onboarding error:', error);
+
+        // Handle validation errors
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({
+                success: false,
+                message: Object.values(error.errors).map(err => err.message).join(', ')
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: 'Server error during onboarding',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+};
 
 // === ONLY ONE EXPORT ===
 module.exports = {
     getDashboardData,
     refreshAIRecommendations,
+    completeOnboarding
 };
